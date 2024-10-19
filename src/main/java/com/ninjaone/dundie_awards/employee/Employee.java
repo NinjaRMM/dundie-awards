@@ -1,6 +1,6 @@
 package com.ninjaone.dundie_awards.employee;
 
-import com.ninjaone.dundie_awards.model.Organization;
+import com.ninjaone.dundie_awards.organization.Organization;
 import jakarta.persistence.*;
 
 @Entity
