@@ -1,4 +1,5 @@
 import org.gradle.api.JavaVersion.VERSION_17
+import org.gradle.jvm.toolchain.JvmVendorSpec.ADOPTIUM
 
 plugins {
     java
@@ -14,7 +15,10 @@ repositories {
 }
 
 java {
-    sourceCompatibility = VERSION_17
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(VERSION_17.majorVersion)
+        vendor = ADOPTIUM
+    }
 }
 
 tasks.withType<Test> {
