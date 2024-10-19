@@ -1,6 +1,7 @@
 package com.ninjaone.dundie_awards.employee;
 
 import com.ninjaone.dundie_awards.error.NotFoundException;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -25,29 +26,32 @@ class EmployeeServiceTest {
     @InjectMocks
     private EmployeeService employeeService;
 
-    @Test
-    public void givenNoEmployeeFoundThenThrow() {
-        long employeeId = 1;
-        given(employeeRepository.findById(employeeId))
-                .willReturn(Optional.empty());
+    @Nested
+    class GetEmployeeTests {
+        @Test
+        public void givenNoEmployeeFoundWhenFindingThenThrow() {
+            long employeeId = 1;
+            given(employeeRepository.findById(employeeId))
+                    .willReturn(Optional.empty());
 
-        NotFoundException exception = catchThrowableOfType(() -> employeeService.getEmployee(employeeId), NotFoundException.class);
+            NotFoundException exception = catchThrowableOfType(() -> employeeService.getEmployee(employeeId), NotFoundException.class);
 
-        assertSoftly((softly) -> {
-            softly.assertThat(exception.getId()).isEqualTo(employeeId);
-            softly.assertThat(exception.getResource()).isEqualTo(EMPLOYEE);
-        });
-    }
+            assertSoftly((softly) -> {
+                softly.assertThat(exception.getId()).isEqualTo(employeeId);
+                softly.assertThat(exception.getResource()).isEqualTo(EMPLOYEE);
+            });
+        }
 
-    @Test
-    public void givenEmployeeFoundThenReturn() {
-        long employeeId = 1;
-        Employee expected = generateDbEmployee();
-        given(employeeRepository.findById(employeeId))
-                .willReturn(Optional.of(expected));
+        @Test
+        public void givenEmployeeFoundWhenFindingThenReturn() {
+            long employeeId = 1;
+            Employee expected = generateDbEmployee();
+            given(employeeRepository.findById(employeeId))
+                    .willReturn(Optional.of(expected));
 
-        Employee employee = employeeService.getEmployee(employeeId);
+            Employee employee = employeeService.getEmployee(employeeId);
 
-        assertThat(employee).isEqualTo(expected);
+            assertThat(employee).isEqualTo(expected);
+        }
     }
 }
