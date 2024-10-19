@@ -2,6 +2,7 @@ package com.ninjaone.dundie_awards;
 
 import com.ninjaone.dundie_awards.employee.Employee;
 import com.ninjaone.dundie_awards.employee.EmployeeRepository;
+import com.ninjaone.dundie_awards.organization.AwardsCache;
 import com.ninjaone.dundie_awards.organization.Organization;
 import com.ninjaone.dundie_awards.organization.OrganizationRepository;
 import org.springframework.boot.CommandLineRunner;

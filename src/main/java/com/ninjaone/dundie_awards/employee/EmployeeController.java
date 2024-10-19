@@ -1,6 +1,6 @@
 package com.ninjaone.dundie_awards.employee;
 
-import com.ninjaone.dundie_awards.AwardsCache;
+import com.ninjaone.dundie_awards.organization.AwardsCache;
 import com.ninjaone.dundie_awards.activity.MessageBroker;
 import com.ninjaone.dundie_awards.activity.ActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
