@@ -1,4 +1,4 @@
-package com.ninjaone.dundie_awards;
+package com.ninjaone.dundie_awards.infrastructure;
 
 import com.ninjaone.dundie_awards.employee.Employee;
 import com.ninjaone.dundie_awards.employee.EmployeeRepository;
