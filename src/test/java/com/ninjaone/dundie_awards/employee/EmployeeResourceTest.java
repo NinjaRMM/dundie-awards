@@ -89,7 +89,7 @@ public class EmployeeResourceTest {
                                 .content(employee)
                                 .contentType(APPLICATION_JSON)
                 )
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().json(expected));
     }
 
