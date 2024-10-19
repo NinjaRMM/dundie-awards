@@ -1,11 +1,11 @@
 import org.gradle.api.JavaVersion.VERSION_17
 import org.gradle.jvm.toolchain.JvmVendorSpec.ADOPTIUM
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
     java
     `jvm-test-suite`
-    id("org.springframework.boot") version "3.2.0"
-    id("io.spring.dependency-management") version "1.1.4"
+    id("org.springframework.boot") version libs.versions.springBootVersion
 }
 
 group = "com.ninjaone"
@@ -33,10 +33,11 @@ testing {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
-    runtimeOnly("com.h2database:h2")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation(platform(SpringBootPlugin.BOM_COORDINATES))
+    implementation(libs.spring.boot.starter.jpa)
+    implementation(libs.spring.boot.starter.thymeleaf)
+    implementation(libs.spring.boot.starter.web)
+    developmentOnly(libs.spring.boot.devtools)
+    runtimeOnly(libs.h2.core)
+    testImplementation(libs.spring.boot.starter.test)
 }
