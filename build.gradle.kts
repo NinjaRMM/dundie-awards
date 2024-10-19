@@ -3,6 +3,7 @@ import org.gradle.jvm.toolchain.JvmVendorSpec.ADOPTIUM
 
 plugins {
     java
+    `jvm-test-suite`
     id("org.springframework.boot") version "3.2.0"
     id("io.spring.dependency-management") version "1.1.4"
 }
@@ -21,8 +22,14 @@ java {
     }
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+testing {
+    suites {
+        // Unstable, but present since Gradle 7.3, to become standard in 9.x
+        @Suppress("UnstableApiUsage")
+        val test by getting(JvmTestSuite::class) {
+            useJUnitJupiter()
+        }
+    }
 }
 
 dependencies {
