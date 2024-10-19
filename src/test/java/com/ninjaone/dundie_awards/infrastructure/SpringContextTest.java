@@ -1,10 +1,10 @@
-package com.ninjaone.dundie_awards;
+package com.ninjaone.dundie_awards.infrastructure;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DundieAwardsApplicationTests {
+class SpringContextTest {
 
 	@Test
 	void contextLoads() {
