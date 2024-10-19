@@ -1,5 +1,6 @@
-package com.ninjaone.dundie_awards.model;
+package com.ninjaone.dundie_awards.employee;
 
+import com.ninjaone.dundie_awards.model.Organization;
 import jakarta.persistence.*;
 
 @Entity
@@ -65,11 +66,11 @@ public class Employee {
         this.organization = organization;
     }
 
-    public void setDundieAwards(int dundieAwards){
+    public void setDundieAwards(int dundieAwards) {
         this.dundieAwards = dundieAwards;
     }
 
-    public Integer getDundieAwards(){
+    public Integer getDundieAwards() {
         return dundieAwards;
     }
 }

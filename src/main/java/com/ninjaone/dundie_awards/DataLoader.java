@@ -1,8 +1,8 @@
 package com.ninjaone.dundie_awards;
 
-import com.ninjaone.dundie_awards.model.Employee;
+import com.ninjaone.dundie_awards.employee.Employee;
+import com.ninjaone.dundie_awards.employee.EmployeeRepository;
 import com.ninjaone.dundie_awards.model.Organization;
-import com.ninjaone.dundie_awards.repository.EmployeeRepository;
 import com.ninjaone.dundie_awards.repository.OrganizationRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
