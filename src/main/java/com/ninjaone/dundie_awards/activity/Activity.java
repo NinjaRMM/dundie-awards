@@ -1,6 +1,9 @@
 package com.ninjaone.dundie_awards.activity;
 
-import jakarta.persistence.*;
+import com.ninjaone.dundie_awards.infrastructure.AbstractEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -12,20 +15,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "activities")
-public class Activity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+public class Activity extends AbstractEntity {
 
     @Column(name = "occured_at")
     private LocalDateTime occuredAt;
 
     @Column(name = "event")
     private String event;
-
-    public Activity(LocalDateTime localDateTime, String event) {
-        this.occuredAt = localDateTime;
-        this.event = event;
-    }
 }
