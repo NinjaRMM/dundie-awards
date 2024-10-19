@@ -1,5 +1,6 @@
 package com.ninjaone.dundie_awards.employee;
 
+import com.ninjaone.dundie_awards.error.NotFoundException;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.ninjaone.dundie_awards.infrastructure.DundieResource.EMPLOYEE;
 
 @Service
 public class EmployeeService {
@@ -23,13 +26,9 @@ public class EmployeeService {
     }
 
     @NotNull
-    ResponseEntity<Employee> getEmployee(long id) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
-        if (optionalEmployee.isPresent()) {
-            return ResponseEntity.ok(optionalEmployee.get());
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    Employee getEmployee(long id) {
+        return employeeRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(id, EMPLOYEE));
     }
 
     @NotNull

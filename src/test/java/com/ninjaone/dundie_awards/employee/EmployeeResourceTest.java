@@ -20,6 +20,44 @@ public class EmployeeResourceTest {
     private MockMvc mockMvc;
 
     @Test
+    public void basicGetEmployeeTest() throws Exception {
+        // TODO 2024-10-19 Dom - fix null awards
+        @Language("JSON")
+        String expected = """
+                {
+                          "firstName": "John",
+                          "lastName": "Doe",
+                          "dundieAwards": null,
+                          "organization": {
+                            "id": 1,
+                            "name": "Pikashu"
+                          }
+                        }
+                """;
+
+        mockMvc.perform(get("/employees/{id}", 1))
+                .andExpect(status().isOk())
+                .andExpect(content().json(expected));
+    }
+
+    @Test
+    public void notFoundGetEmployeeTest() throws Exception {
+        @Language("JSON")
+        String expected = """
+                {
+                    "status": "NOT_FOUND",
+                    "code": "not.found.exception",
+                    "title": "The resource was not found",
+                    "detail": "Resource 'Employee' with id '777' was not found"
+                }
+                """;
+
+        mockMvc.perform(get("/employees/{id}", 777))
+                .andExpect(status().isNotFound())
+                .andExpect(content().json(expected));
+    }
+
+    @Test
     public void basicCreateTest() throws Exception {
         @Language("JSON")
         String employee = """
