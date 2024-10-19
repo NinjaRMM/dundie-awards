@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping()
+@RequestMapping("/employees")
 public class EmployeeController {
 
     @Autowired
@@ -27,32 +27,32 @@ public class EmployeeController {
     private AwardsCache awardsCache;
 
     // get all employees
-    @GetMapping("/employees")
+    @GetMapping
     public List<Employee> getAllEmployees() {
         return employeeService.getAllEmployees();
     }
 
     // create employee rest api
-    @PostMapping("/employees")
+    @PostMapping
     public Employee createEmployee(@RequestBody Employee employee) {
         return employeeService.createEmployee(employee);
     }
 
     // get employee by id rest api
-    @GetMapping("/employees/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable long id) {
         return employeeService.getEmployee(id);
     }
 
     // update employee rest api
-    @PutMapping("/employees/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable Long id,
                                                    @RequestBody Employee employeeDetails) {
         return employeeService.updateEmployee(id, employeeDetails);
     }
 
     // delete employee rest api
-    @DeleteMapping("/employees/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Boolean>> deleteEmployee(@PathVariable Long id) {
         return employeeService.deleteEmployee(id);
     }
