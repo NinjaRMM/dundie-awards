@@ -1,5 +1,5 @@
 [versions]
-springBootVersion = "3.2.0"
+springBootVersion = "3.3.4"
 
 [libraries]
 h2-core = { module = "com.h2database:h2" }
