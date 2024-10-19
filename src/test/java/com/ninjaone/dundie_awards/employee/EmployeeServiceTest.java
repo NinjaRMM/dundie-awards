@@ -48,8 +48,8 @@ class EmployeeServiceTest {
 
         @Test
         public void givenEmployeeFoundWhenFindingThenReturn() {
-            long employeeId = 1;
             Employee expected = generateDbEmployee();
+            long employeeId = expected.getId();
             given(employeeRepository.findById(employeeId))
                     .willReturn(Optional.of(expected));
 
@@ -83,8 +83,8 @@ class EmployeeServiceTest {
 
         @Test
         public void givenEmployeeFoundWhenUpdatingThenThrow() {
-            long employeeId = 1;
             Employee employee = generateDbEmployee();
+            long employeeId = employee.getId();
             Organization organization = generateDbOrganization();
             given(employeeRepository.findById(employeeId))
                     .willReturn(Optional.of(employee));
