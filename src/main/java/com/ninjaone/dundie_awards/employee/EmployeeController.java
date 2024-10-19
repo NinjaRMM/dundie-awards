@@ -32,7 +32,6 @@ public class EmployeeController {
         return employeeService.getAllEmployees();
     }
 
-    // create employee rest api
     @PostMapping
     public Employee createEmployee(@RequestBody Employee employee) {
         return employeeService.createEmployee(employee);
@@ -43,14 +42,12 @@ public class EmployeeController {
         return employeeService.getEmployee(id);
     }
 
-    // update employee rest api
     @PutMapping("/{id}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable Long id,
                                                    @RequestBody Employee employeeDetails) {
         return employeeService.updateEmployee(id, employeeDetails);
     }
 
-    // delete employee rest api
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Boolean>> deleteEmployee(@PathVariable Long id) {
         return employeeService.deleteEmployee(id);
