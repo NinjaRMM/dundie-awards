@@ -21,13 +21,12 @@ public class EmployeeResourceTest {
 
     @Test
     public void basicGetEmployeeTest() throws Exception {
-        // TODO 2024-10-19 Dom - fix null awards
         @Language("JSON")
         String expected = """
                 {
                           "firstName": "John",
                           "lastName": "Doe",
-                          "dundieAwards": null,
+                          "dundieAwards": 0,
                           "organization": {
                             "id": 1,
                             "name": "Pikashu"
@@ -108,7 +107,7 @@ public class EmployeeResourceTest {
                   "id": 1,
                   "firstName": "Alpha",
                   "lastName": "Beta",
-                  "dundieAwards": null,
+                  "dundieAwards": 0,
                   "organization": {
                     "id": 1,
                     "name": "Pikashu"

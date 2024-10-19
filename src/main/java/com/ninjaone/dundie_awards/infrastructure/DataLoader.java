@@ -8,7 +8,7 @@ import com.ninjaone.dundie_awards.organization.OrganizationRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
+import java.util.List;
 
 @Component
 public class DataLoader implements CommandLineRunner {
@@ -32,22 +32,56 @@ public class DataLoader implements CommandLineRunner {
         if (employeeRepository.count() == 0) {
             Organization organizationPikashu = new Organization("Pikashu");
             organizationRepository.save(organizationPikashu);
-
-            employeeRepository.save(new Employee("John", "Doe", organizationPikashu));
-            employeeRepository.save(new Employee("Jane", "Smith", organizationPikashu));
-            employeeRepository.save(new Employee("Creed", "Braton", organizationPikashu));
+            List<Employee> pikashuEmployees = List.of(
+                    Employee.builder()
+                            .firstName("John")
+                            .lastName("Doe")
+                            .organization(organizationPikashu)
+                            .build(),
+                    Employee.builder()
+                            .firstName("Jane")
+                            .lastName("Smith")
+                            .organization(organizationPikashu)
+                            .build(),
+                    Employee.builder()
+                            .firstName("Creed")
+                            .lastName("Braton")
+                            .organization(organizationPikashu)
+                            .build()
+            );
+            employeeRepository.saveAll(pikashuEmployees);
 
             Organization organizationSquanchy = new Organization("Squanchy");
             organizationRepository.save(organizationSquanchy);
 
-            employeeRepository.save(new Employee("Michael", "Scott", organizationSquanchy));
-            employeeRepository.save(new Employee("Dwight", "Schrute", organizationSquanchy));
-            employeeRepository.save(new Employee("Jim", "Halpert", organizationSquanchy));
-            employeeRepository.save(new Employee("Pam", "Beesley", organizationSquanchy));
+            List<Employee> squanchyEmployees = List.of(
+                    Employee.builder()
+                            .firstName("Michael")
+                            .lastName("Scott")
+                            .organization(organizationSquanchy)
+                            .build(),
+                    Employee.builder()
+                            .firstName("Dwight")
+                            .lastName("Schrute")
+                            .organization(organizationSquanchy)
+                            .build(),
+                    Employee.builder()
+                            .firstName("Jim")
+                            .lastName("Halpert")
+                            .organization(organizationSquanchy)
+                            .build(),
+                    Employee.builder()
+                            .firstName("Pam")
+                            .lastName("Beesley")
+                            .organization(organizationSquanchy)
+                            .build()
+            );
+
+            employeeRepository.saveAll(squanchyEmployees);
         }
 
         int totalAwards = employeeRepository.findAll().stream()
-                .mapToInt(employee -> Objects.requireNonNullElse(employee.getDundieAwards(), 0))
+                .mapToInt(Employee::getDundieAwards)
                 .sum();
         this.awardsCache.setTotalAwards(totalAwards);
     }
