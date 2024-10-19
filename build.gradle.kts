@@ -39,5 +39,10 @@ dependencies {
     implementation(libs.spring.boot.starter.web)
     developmentOnly(libs.spring.boot.devtools)
     runtimeOnly(libs.h2.core)
+    // added for Language helper
+    // docs say it only needs to be compileOnly, but wasn't working, investigate further
+    implementation(libs.jetbrains.annotations)
+
+
     testImplementation(libs.spring.boot.starter.test)
 }

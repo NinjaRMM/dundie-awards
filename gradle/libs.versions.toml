@@ -1,8 +1,12 @@
 [versions]
+jetbrainsAnnotations = "26.0.1"
 springBootVersion = "3.3.4"
 
 [libraries]
 h2-core = { module = "com.h2database:h2" }
+
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsAnnotations" }
+
 spring-boot-devtools = { module = "org.springframework.boot:spring-boot-devtools", version.ref = "springBootVersion" }
 spring-boot-starter-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa", version.ref = "springBootVersion" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "springBootVersion" }
