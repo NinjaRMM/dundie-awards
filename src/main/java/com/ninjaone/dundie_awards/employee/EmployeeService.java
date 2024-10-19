@@ -37,18 +37,14 @@ public class EmployeeService {
     }
 
     @NotNull
-    ResponseEntity<Employee> updateEmployee(Long id, Employee employeeDetails) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
-        if (!optionalEmployee.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    Employee updateEmployee(long id, @NotNull Employee employeeDetails) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(id, EMPLOYEE));
 
-        Employee employee = optionalEmployee.get();
         employee.setFirstName(employeeDetails.getFirstName());
         employee.setLastName(employeeDetails.getLastName());
 
-        Employee updatedEmployee = createEmployee(employee);
-        return ResponseEntity.ok(updatedEmployee);
+        return employeeRepository.save(employee);
     }
 
     @NotNull
