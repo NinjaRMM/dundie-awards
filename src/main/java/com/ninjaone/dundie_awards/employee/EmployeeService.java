@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.ninjaone.dundie_awards.infrastructure.DundieResource.EMPLOYEE;
+import static org.springframework.transaction.annotation.Isolation.REPEATABLE_READ;
 
 @Service
 public class EmployeeService {
@@ -36,6 +38,7 @@ public class EmployeeService {
         return employeeRepository.save(employee);
     }
 
+    @Transactional(isolation = REPEATABLE_READ)
     @NotNull
     Employee updateEmployee(long id, @NotNull Employee employeeDetails) {
         Employee employee = employeeRepository.findById(id)
@@ -44,7 +47,7 @@ public class EmployeeService {
         employee.setFirstName(employeeDetails.getFirstName());
         employee.setLastName(employeeDetails.getLastName());
 
-        return employeeRepository.save(employee);
+        return employee;
     }
 
     @NotNull
