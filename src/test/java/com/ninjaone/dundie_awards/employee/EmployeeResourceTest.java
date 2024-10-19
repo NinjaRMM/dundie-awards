@@ -126,18 +126,11 @@ public class EmployeeResourceTest {
 
     @Test
     public void basicDeleteTest() throws Exception {
-        @Language("JSON")
-        String expected = """
-                {
-                  "deleted": true
-                }
-                """;
-
         mockMvc.perform(
                         delete("/employees/{id}", 2)
                                 .contentType(APPLICATION_JSON)
                 )
-                .andExpect(status().isOk())
-                .andExpect(content().json(expected));
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
     }
 }

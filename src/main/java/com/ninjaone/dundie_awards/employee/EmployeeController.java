@@ -5,11 +5,11 @@ import com.ninjaone.dundie_awards.activity.MessageBroker;
 import com.ninjaone.dundie_awards.organization.AwardsCache;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
+
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 @RestController
 @RequestMapping("/employees")
@@ -50,7 +50,8 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Boolean>> deleteEmployee(@PathVariable Long id) {
-        return employeeService.deleteEmployee(id);
+    @ResponseStatus(NO_CONTENT)
+    public void deleteEmployee(@PathVariable long id) {
+        employeeService.deleteEmployee(id);
     }
 }

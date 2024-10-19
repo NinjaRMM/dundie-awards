@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Answers.RETURNS_SMART_NULLS;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @MockitoSettings
 class EmployeeServiceTest {
@@ -97,6 +98,18 @@ class EmployeeServiceTest {
                 softly.assertThat(result.getLastName()).isEqualTo(employee.getLastName());
                 softly.assertThat(result.getOrganization()).isEqualTo(employee.getOrganization());
             });
+        }
+    }
+
+    @Nested
+    class DeleteEmployeeTests {
+        @Test
+        public void shouldDeleteEmployee() {
+            long employeeId = 1;
+
+            employeeService.deleteEmployee(employeeId);
+
+            verify(employeeRepository).deleteById(employeeId);
         }
     }
 }
