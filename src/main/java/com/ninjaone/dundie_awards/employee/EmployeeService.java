@@ -37,14 +37,14 @@ public class EmployeeService {
 
     @Transactional(isolation = REPEATABLE_READ)
     @NotNull
-    Employee updateEmployee(long id, @NotNull Employee employeeDetails) {
+    EmployeeRecord updateEmployee(long id, @NotNull Employee employeeDetails) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(id, EMPLOYEE));
 
         employee.setFirstName(employeeDetails.getFirstName());
         employee.setLastName(employeeDetails.getLastName());
 
-        return employee;
+        return EmployeeRecord.fromDb(employee);
     }
 
     void deleteEmployee(long id) {

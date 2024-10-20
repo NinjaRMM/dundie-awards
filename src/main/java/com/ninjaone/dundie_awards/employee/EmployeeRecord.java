@@ -6,6 +6,8 @@ import lombok.Builder;
 @Builder
 public record EmployeeRecord(
         @NotNull
+        long id,
+        @NotNull
         String firstName,
         @NotNull
         String lastName,
@@ -19,6 +21,7 @@ public record EmployeeRecord(
 
     static EmployeeRecord fromDb(Employee db) {
         return EmployeeRecord.builder()
+                .id(db.getId())
                 .firstName(db.getFirstName())
                 .lastName(db.getLastName())
                 .organizationId(db.getOrganization().getId())

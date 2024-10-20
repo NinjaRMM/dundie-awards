@@ -116,10 +116,8 @@ public class EmployeeResourceTest {
                   "firstName": "Alpha",
                   "lastName": "Beta",
                   "dundieAwards": 0,
-                  "organization": {
-                    "id": 1,
-                    "name": "Pikashu"
-                  }
+                  "organizationId": 1,
+                  "organizationName":  "Pikashu"
                 }
                 """;
         mockMvc.perform(

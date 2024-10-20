@@ -91,12 +91,14 @@ class EmployeeServiceTest {
                     .willReturn(Optional.of(employee));
             Employee newEmployee = new Employee("New First", "New Last", organization);
 
-            Employee result = employeeService.updateEmployee(employeeId, newEmployee);
+            EmployeeRecord result = employeeService.updateEmployee(employeeId, newEmployee);
 
             assertSoftly(softly -> {
-                softly.assertThat(result.getFirstName()).isEqualTo(employee.getFirstName());
-                softly.assertThat(result.getLastName()).isEqualTo(employee.getLastName());
-                softly.assertThat(result.getOrganization()).isEqualTo(employee.getOrganization());
+                softly.assertThat(result.firstName()).isEqualTo(employee.getFirstName());
+                softly.assertThat(result.lastName()).isEqualTo(employee.getLastName());
+                softly.assertThat(result.dundieAwards()).isEqualTo(employee.getDundieAwards());
+                softly.assertThat(result.organizationId()).isEqualTo(employee.getOrganization().getId());
+                softly.assertThat(result.organizationName()).isEqualTo(employee.getOrganization().getName());
             });
         }
     }

@@ -3,7 +3,7 @@ package com.ninjaone.dundie_awards.employee;
 import com.ninjaone.dundie_awards.activity.ActivityRepository;
 import com.ninjaone.dundie_awards.activity.MessageBroker;
 import com.ninjaone.dundie_awards.organization.AwardsCache;
-import org.jetbrains.annotations.NotNull;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,8 +45,8 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    public @NotNull Employee updateEmployee(@PathVariable long id,
-                                            @RequestBody Employee employeeDetails) {
+    public @NotNull EmployeeRecord updateEmployee(@PathVariable long id,
+                                                  @RequestBody Employee employeeDetails) {
         return employeeService.updateEmployee(id, employeeDetails);
     }
 

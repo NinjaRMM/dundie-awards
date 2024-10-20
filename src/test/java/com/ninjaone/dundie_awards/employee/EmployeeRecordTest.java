@@ -17,6 +17,7 @@ class EmployeeRecordTest {
 
     public static void assertEmployeeRecordEqualsDb(EmployeeRecord result, Employee source) {
         assertSoftly(softly -> {
+            softly.assertThat(result.id()).isEqualTo(source.getId());
             softly.assertThat(result.firstName()).isEqualTo(source.getFirstName());
             softly.assertThat(result.lastName()).isEqualTo(source.getLastName());
             softly.assertThat(result.dundieAwards()).isEqualTo(source.getDundieAwards());
