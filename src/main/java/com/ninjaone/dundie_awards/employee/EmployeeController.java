@@ -28,9 +28,8 @@ public class EmployeeController {
     @Autowired
     private AwardsCache awardsCache;
 
-    // get all employees
     @GetMapping
-    public List<Employee> getAllEmployees() {
+    public List<EmployeeRecord> getAllEmployees() {
         return employeeService.getAllEmployees();
     }
 

@@ -76,7 +76,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Employee"
+                  $ref: "#/components/schemas/EmployeeRecord"
     post:
       tags:
       - employee-controller
@@ -118,4 +118,25 @@ components:
           type: integer
           format: int64
         name:
+          type: string
+    EmployeeRecord:
+      required:
+        - dundieAwards
+        - firstName
+        - lastName
+        - organizationId
+        - organizationName
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dundieAwards:
+          type: integer
+          format: int32
+        organizationId:
+          type: integer
+          format: int64
+        organizationName:
           type: string

@@ -17,9 +17,12 @@ public class EmployeeService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    @NotNull
-    List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
+    @GetMapping("/employees")
+    @ResponseBody
+    public List<EmployeeRecord> getAllEmployees() {
+        return employeeRepository.findAll()
+                .stream().map(EmployeeRecord::fromDb)
+                .toList();
     }
 
     @NotNull

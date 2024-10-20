@@ -7,10 +7,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.is;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -37,6 +37,18 @@ public class EmployeeResourceTest {
         mockMvc.perform(get("/employees/{id}", 1))
                 .andExpect(status().isOk())
                 .andExpect(content().json(expected));
+    }
+
+    @Test
+    public void basicGetAllEmployeesTest() throws Exception {
+        mockMvc.perform(get("/employees"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].firstName").value(is("John")))
+                .andExpect(jsonPath("$[0].lastName").value(is("Doe")))
+                .andExpect(jsonPath("$[0].dundieAwards").value(is(0)))
+                .andExpect(jsonPath("$[0].organizationId").value(is(1)))
+                .andExpect(jsonPath("$[0].organizationName").value(is("Pikashu")))
+        ;
     }
 
     @Test
