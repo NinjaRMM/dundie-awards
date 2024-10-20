@@ -44,6 +44,7 @@ dependencies {
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     implementation(libs.spring.boot.starter.jpa)
     implementation(libs.spring.boot.starter.thymeleaf)
+    implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.boot.starter.web)
     developmentOnly(libs.spring.boot.devtools)
     runtimeOnly(libs.h2.core)
