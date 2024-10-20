@@ -12,10 +12,10 @@ import org.mockito.junit.jupiter.MockitoSettings;
 
 import java.util.Optional;
 
+import static com.ninjaone.dundie_awards.employee.EmployeeRecordTest.assertEmployeeRecordEqualsDb;
 import static com.ninjaone.dundie_awards.generators.JpaDataGenerators.generateDbEmployee;
 import static com.ninjaone.dundie_awards.generators.JpaDataGenerators.generateDbOrganization;
 import static com.ninjaone.dundie_awards.infrastructure.DundieResource.EMPLOYEE;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.Answers.RETURNS_SMART_NULLS;
@@ -54,9 +54,9 @@ class EmployeeServiceTest {
             given(employeeRepository.findById(employeeId))
                     .willReturn(Optional.of(expected));
 
-            Employee employee = employeeService.getEmployee(employeeId);
+            EmployeeRecord employee = employeeService.getEmployee(employeeId);
 
-            assertThat(employee).isEqualTo(expected);
+            assertEmployeeRecordEqualsDb(employee, expected);
         }
     }
 

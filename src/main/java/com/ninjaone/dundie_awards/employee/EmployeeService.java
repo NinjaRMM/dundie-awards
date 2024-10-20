@@ -24,9 +24,9 @@ public class EmployeeService {
                 .toList();
     }
 
-    @NotNull
-    Employee getEmployee(long id) {
+    EmployeeRecord getEmployee(long id) {
         return employeeRepository.findById(id)
+                .map(EmployeeRecord::fromDb)
                 .orElseThrow(() -> new NotFoundException(id, EMPLOYEE));
     }
 

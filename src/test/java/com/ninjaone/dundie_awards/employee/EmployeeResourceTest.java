@@ -23,15 +23,13 @@ public class EmployeeResourceTest {
     public void basicGetEmployeeTest() throws Exception {
         @Language("JSON")
         String expected = """
-                {
-                          "firstName": "John",
-                          "lastName": "Doe",
-                          "dundieAwards": 0,
-                          "organization": {
-                            "id": 1,
-                            "name": "Pikashu"
-                          }
-                        }
+                    {
+                      "firstName": "John",
+                      "lastName": "Doe",
+                      "dundieAwards": 0,
+                      "organizationId": 1,
+                      "organizationName": "Pikashu"
+                    }
                 """;
 
         mockMvc.perform(get("/employees/{id}", 1))

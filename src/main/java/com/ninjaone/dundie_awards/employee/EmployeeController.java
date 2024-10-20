@@ -40,7 +40,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public Employee getEmployeeById(@PathVariable long id) {
+    public EmployeeRecord getEmployeeById(@PathVariable long id) {
         return employeeService.getEmployee(id);
     }
 
