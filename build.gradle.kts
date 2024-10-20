@@ -6,6 +6,7 @@ plugins {
     java
     `jvm-test-suite`
     id("org.springframework.boot") version libs.versions.springBootVersion
+    alias(libs.plugins.spring.doc.plugin)
 }
 
 group = "com.ninjaone"
@@ -32,6 +33,13 @@ testing {
     }
 }
 
+openApi {
+    apiDocsUrl.set("http://localhost:3000/openapi.yaml")
+    outputDir.set(file("openapi"))
+    outputFileName.set("openapi.yaml")
+    waitTimeInSeconds = 10
+}
+
 dependencies {
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     implementation(libs.spring.boot.starter.jpa)
@@ -40,8 +48,9 @@ dependencies {
     developmentOnly(libs.spring.boot.devtools)
     runtimeOnly(libs.h2.core)
     // added for Language helper
-    // docs say it only needs to be compileOnly, but wasn"t working, investigate further
     implementation(libs.jetbrains.annotations)
+    implementation(platform(libs.spring.doc.bom))
+    implementation(libs.spring.doc.starter.webmvc.ui)
 
     compileOnly(libs.lombok.core)
     annotationProcessor(libs.lombok.core)
