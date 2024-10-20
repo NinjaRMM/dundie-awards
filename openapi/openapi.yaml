@@ -40,7 +40,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Employee"
+              $ref: "#/components/schemas/UpdateEmployeeRequest"
         required: true
       responses:
         "200":
@@ -96,7 +96,9 @@ paths:
                 $ref: "#/components/schemas/EmployeeRecord"
 components:
   schemas:
-    Employee:
+    UpdateEmployeeRequest:
+      required:
+        - id
       type: object
       properties:
         id:
@@ -109,16 +111,10 @@ components:
         dundieAwards:
           type: integer
           format: int32
-        organization:
-          $ref: "#/components/schemas/Organization"
-    Organization:
-      type: object
-      properties:
-        id:
+        organizationId:
+          minimum: 1
           type: integer
           format: int64
-        name:
-          type: string
     EmployeeRecord:
       required:
         - dundieAwards
@@ -143,4 +139,27 @@ components:
           type: integer
           format: int64
         organizationName:
+          type: string
+    Employee:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dundieAwards:
+          type: integer
+          format: int32
+        organization:
+          $ref: "#/components/schemas/Organization"
+    Organization:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
           type: string
