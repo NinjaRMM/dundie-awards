@@ -85,14 +85,12 @@ public class EmployeeResourceTest {
 
         @Language("JSON")
         String expected = """
-                {
+                        {
                           "firstName": "Ash",
                           "lastName": "Ketchum",
                           "dundieAwards": 0,
-                          "organization": {
-                            "id": 1,
-                            "name": "Pikashu"
-                          }
+                          "organizationId": 1,
+                          "organizationName":  "Pikashu"
                         }
                 """;
         mockMvc.perform(

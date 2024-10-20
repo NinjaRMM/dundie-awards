@@ -17,8 +17,7 @@ public class EmployeeService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    @GetMapping("/employees")
-    @ResponseBody
+    @NotNull
     public List<EmployeeRecord> getAllEmployees() {
         return employeeRepository.findAll()
                 .stream().map(EmployeeRecord::fromDb)
@@ -32,8 +31,8 @@ public class EmployeeService {
     }
 
     @NotNull
-    Employee createEmployee(Employee employee) {
-        return employeeRepository.save(employee);
+    EmployeeRecord createEmployee(Employee employee) {
+        return EmployeeRecord.fromDb(employeeRepository.save(employee));
     }
 
     @Transactional(isolation = REPEATABLE_READ)
