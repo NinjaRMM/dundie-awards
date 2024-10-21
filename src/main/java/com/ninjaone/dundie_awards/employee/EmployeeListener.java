@@ -25,7 +25,7 @@ public class EmployeeListener {
         messageBroker.sendMessage(
                 createMessageNow(
                         format(
-                                "Employee %s %s has joined the company!",
+                                "%s %s has joined the company!",
                                 employee.getFirstName(),
                                 employee.getLastName()
                         )
