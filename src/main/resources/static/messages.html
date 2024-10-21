@@ -15,7 +15,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="activity : ${queueMessages}">
-                    <th th:text="${activity.occurredAt}"></th>
+                    <th th:text="${#temporals.format(activity.occurredAt, 'MEDIUM')}"></th>
                     <th th:text="${activity.event}"></th>
                 </tr>
                 </tbody>
