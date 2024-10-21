@@ -43,6 +43,30 @@
         crossorigin="anonymous"></script>
 <script>
 
+    function checkMessages() {
+        $.get({
+            url: '/messages/view',
+            success: (response) => {
+            }
+        }).done((data) => {
+            $('#queueMessages').html(data);
+        }).always(() => {
+            setTimeout(checkMessages, 1000);
+        });
+    };
+
+    function checkActivities() {
+        $.get({
+            url: '/activities/view',
+            success: (response) => {
+            }
+        }).done((data) => {
+            $('#activities').html(data);
+        }).always(() => {
+            setTimeout(checkActivities, 1000);
+        });
+    };
+
     $(document).ready(() => {
         $.get({
             url: '/employees/view'
@@ -61,33 +85,10 @@
                 url: '/activities'
             });
         });
+
+        checkMessages();
+        checkActivities();
     });
-
-    function checkMessages() {
-        $.get({
-            url: '/messages/view',
-            success: (response) => {
-            }
-        }).done((data) => {
-            $('#queueMessages').html(data);
-        }).always(() => {
-            setTimeout(checkMessages, 1000);
-        });
-    };
-    $(document).ready(checkMessages());
-
-    function checkActivities() {
-        $.get({
-            url: '/activities/view',
-            success: (response) => {
-            }
-        }).done((data) => {
-            $('#activities').html(data);
-        }).always(() => {
-            setTimeout(checkActivities, 1000);
-        });
-    };
-    $(document).ready(checkActivities());
 </script>
 </body>
 </html>
