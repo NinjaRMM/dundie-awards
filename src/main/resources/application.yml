@@ -6,6 +6,9 @@ server:
 
 logging.level.com.ninjaone: TRACE
 
+dundie:
+  messageBrokerSize: 10
+
 spring:
   spring:
     datasource:
