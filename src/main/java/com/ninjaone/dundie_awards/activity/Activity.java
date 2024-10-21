@@ -6,7 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class Activity extends AbstractEntity {
 
     @Column(name = "occurred_at")
-    private LocalDateTime occurredAt;
+    private Instant occurredAt;
 
     @Column(name = "event")
     private String event;
