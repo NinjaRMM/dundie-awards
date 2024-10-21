@@ -4,6 +4,8 @@ springdoc:
 server:
   port: 3000
 
+logging.level.com.ninjaone: TRACE
+
 spring:
   spring:
     datasource:
