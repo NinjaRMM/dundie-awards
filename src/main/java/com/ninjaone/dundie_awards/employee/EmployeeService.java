@@ -1,6 +1,8 @@
 package com.ninjaone.dundie_awards.employee;
 
+import com.ninjaone.dundie_awards.activity.MessageBroker;
 import com.ninjaone.dundie_awards.error.NotFoundException;
+import com.ninjaone.dundie_awards.organization.AwardsCache;
 import com.ninjaone.dundie_awards.organization.Organization;
 import com.ninjaone.dundie_awards.organization.OrganizationRepository;
 import jakarta.validation.constraints.NotNull;
@@ -10,10 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.ninjaone.dundie_awards.activity.Message.createMessageNow;
 import static com.ninjaone.dundie_awards.infrastructure.DundieResource.EMPLOYEE;
 import static com.ninjaone.dundie_awards.infrastructure.DundieResource.ORGANIZATION;
 import static com.ninjaone.dundie_awards.util.SanitizationUtils.mutateIfNotNull;
 import static com.ninjaone.dundie_awards.util.SanitizationUtils.mutateTrimmedStringIfNotNull;
+import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.springframework.transaction.annotation.Isolation.REPEATABLE_READ;
 
@@ -21,7 +25,13 @@ import static org.springframework.transaction.annotation.Isolation.REPEATABLE_RE
 public class EmployeeService {
 
     @Autowired
+    private AwardsCache awardsCache;
+
+    @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private MessageBroker messageBroker;
 
     @Autowired
     private OrganizationRepository organizationRepository;
@@ -73,9 +83,20 @@ public class EmployeeService {
 
     @Transactional(isolation = REPEATABLE_READ)
     public void giftAward(long employeeId) {
+        // TODO 2024-10-21 Dom - Consider migrating to a Hibernate entity event listener, rather than manually invoking the message broker
+        // TODO 2024-10-21 Dom - didn't end up doing much with awardsCache
         employeeRepository.findById(employeeId)
-                .ifPresent(employee ->
-                        employee.setDundieAwards(employee.getDundieAwards() + 1)
+                .ifPresent(employee -> {
+                            employee.setDundieAwards(employee.getDundieAwards() + 1);
+                            awardsCache.addOneAward();
+                            messageBroker.sendMessage(createMessageNow(
+                                    format(
+                                            "%s %s has been gifted an award!",
+                                            employee.getFirstName(),
+                                            employee.getLastName()
+                                    )
+                            ));
+                        }
                 );
     }
 }
