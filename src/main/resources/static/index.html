@@ -24,6 +24,9 @@
 <div id="queueMessages"></div>
 <div>
     <h2 class="mb-3">Admin</h2>
+    <button id="generateNewEmployee" type="button">
+        Generate New Employee
+    </button>
     <button id="generateTestMessage" type="button">
         Generate Test Message
     </button>
@@ -67,11 +70,28 @@
         });
     };
 
-    $(document).ready(() => {
+    function refreshEmployees() {
         $.get({
             url: '/employees/view'
         }).done((data) => {
             $('#employees').html(data);
+        });
+    };
+
+    $(document).ready(() => {
+        $('#generateNewEmployee').click(() => {
+            $.post({
+                url: '/employees',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    firstName: "Ash",
+                    lastName: "Ketchum",
+                    dundieAwards: 0,
+                    organizationId: 1
+                })
+            }).done(() => {
+                refreshEmployees();
+            });
         });
 
         $('#generateTestMessage').click(() => {
@@ -86,6 +106,7 @@
             });
         });
 
+        refreshEmployees();
         checkMessages();
         checkActivities();
     });
