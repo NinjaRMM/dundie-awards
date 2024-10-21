@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.UUID;
+
 import static com.ninjaone.dundie_awards.activity.Message.createMessageNow;
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 
 @Slf4j
 @RequestMapping("/messages")
@@ -32,6 +33,8 @@ public class MessageController {
     public void sendMessage() {
         log.trace("sendMessage");
         messageBroker.sendMessage(
-                createMessageNow(randomAlphabetic(32)));
+                createMessageNow(
+                        "New random message: " + UUID.randomUUID()
+                ));
     }
 }
