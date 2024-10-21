@@ -20,4 +20,8 @@ public class ActivityService {
     void createActivity(ActivityRecord activity) {
         activityRepository.save(activity.toDb());
     }
+
+    public void handleMessage(Message message) {
+        activityRepository.save(message.toActivity());
+    }
 }

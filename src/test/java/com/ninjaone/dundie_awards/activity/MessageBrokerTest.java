@@ -19,6 +19,9 @@ import static org.mockito.BDDMockito.given;
 class MessageBrokerTest {
 
     @Mock(answer = RETURNS_SMART_NULLS)
+    private ActivityService activityService;
+
+    @Mock(answer = RETURNS_SMART_NULLS)
     private DundieProperties dundieProperties;
 
     private MessageBroker messageBroker;
@@ -33,7 +36,9 @@ class MessageBrokerTest {
             given(dundieProperties.messageBrokerTimeoutMs())
                     .willReturn(5000);
 
-            messageBroker = new MessageBroker(dundieProperties);
+            messageBroker = new MessageBroker(
+                    activityService, dundieProperties
+            );
         }
 
         @Test
@@ -60,7 +65,9 @@ class MessageBrokerTest {
             given(dundieProperties.messageBrokerTimeoutMs())
                     .willReturn(1);
 
-            messageBroker = new MessageBroker(dundieProperties);
+            messageBroker = new MessageBroker(
+                    activityService, dundieProperties
+            );
         }
 
         @Test
