@@ -70,4 +70,12 @@ public class EmployeeService {
     void deleteEmployee(long id) {
         employeeRepository.deleteById(id);
     }
+
+    @Transactional(isolation = REPEATABLE_READ)
+    public void giftAward(long employeeId) {
+        employeeRepository.findById(employeeId)
+                .ifPresent(employee ->
+                        employee.setDundieAwards(employee.getDundieAwards() + 1)
+                );
+    }
 }

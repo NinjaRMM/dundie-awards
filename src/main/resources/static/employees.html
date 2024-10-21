@@ -14,6 +14,7 @@
                     <th>Dundie Awards</th>
                     <th>Organization id</th>
                     <th>Organization name</th>
+                    <th>Award</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -23,6 +24,9 @@
                     <td th:text="${employee.dundieAwards}"></td>
                     <td th:text="${employee.organizationId}"></td>
                     <td th:text="${employee.organizationName}"></td>
+                    <td>
+                        <button class="awardButton" type="button" th:value="${employee.id}">Gift Award</button>
+                    </td>
                 </tr>
                 </tbody>
             </table>

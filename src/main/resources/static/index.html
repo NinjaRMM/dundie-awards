@@ -75,6 +75,15 @@
             url: '/employees/view'
         }).done((data) => {
             $('#employees').html(data);
+
+            $('.awardButton').click(function() {
+                $.post({
+                    url: '/employees/award?employeeId=' + $(this).val()
+                }).done(() => {
+                    // TODO Refreshing the entire employees list here is wasteful, fix to update one line
+                    refreshEmployees();
+                });
+            });
         });
     };
 
