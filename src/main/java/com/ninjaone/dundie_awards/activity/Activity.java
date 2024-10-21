@@ -17,8 +17,8 @@ import java.time.LocalDateTime;
 @Table(name = "activities")
 public class Activity extends AbstractEntity {
 
-    @Column(name = "occured_at")
-    private LocalDateTime occuredAt;
+    @Column(name = "occurred_at")
+    private LocalDateTime occurredAt;
 
     @Column(name = "event")
     private String event;
