@@ -1,20 +1,38 @@
 package com.ninjaone.dundie_awards.activity;
 
+import com.ninjaone.dundie_awards.config.DundieProperties;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 @Component
 public class MessageBroker {
 
-    private List<Activity> messages = new LinkedList<>();
+    private final DundieProperties dundieProperties;
 
-    public void sendMessage(Activity message) {
-        messages.add(message);
+    private final LinkedBlockingQueue<Activity> messages;
+
+    public MessageBroker(DundieProperties dundieProperties) {
+        this.dundieProperties = dundieProperties;
+
+        messages = new LinkedBlockingQueue<>(dundieProperties.messageBrokerSize());
     }
 
-    public List<Activity> getMessages(){
-        return messages;
+    // TODO 2024-10-21 Dom - Handle InterruptedException better
+    // TODO 2024-10-21 Dom - Consider a retry/backoff on failure
+    @SneakyThrows
+    public void sendMessage(Activity message) {
+        boolean success = messages.offer(message, dundieProperties.messageBrokerTimeoutMs(), MILLISECONDS);
+        if (!success) {
+            throw new MessageBrokerTimeoutException();
+        }
+    }
+
+    public List<Activity> getMessages() {
+        return messages.stream().toList();
     }
 }

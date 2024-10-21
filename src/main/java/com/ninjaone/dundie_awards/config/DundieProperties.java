@@ -10,6 +10,10 @@ import org.springframework.validation.annotation.Validated;
 public record DundieProperties(
         @Min(1)
         @NotNull
-        int messageBrokerSize
+        int messageBrokerSize,
+
+        @Min(1)
+        @NotNull
+        int messageBrokerTimeoutMs
 ) {
 }
