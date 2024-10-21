@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="content">
+    <div th:switch="${queueMessages}" class="mt-5">
+        <h2 class="mb-3">Queue Messages</h2>
+        <p th:case="null" class="alert alert-warning">No messages</p>
+        <div th:case="*">
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Occurred At</th>
+                    <th>Event</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="activity : ${queueMessages}">
+                    <th th:text="${activity.occurredAt}"></th>
+                    <th th:text="${activity.event}"></th>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

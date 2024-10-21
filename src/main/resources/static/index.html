@@ -65,26 +65,7 @@
         </table>
     </div>
 </div>
-<div th:switch="${queueMessages}" class="mt-5">
-    <h2 class="mb-3">Queue Messages</h2>
-    <p th:case="null" class="alert alert-warning">No messages</p>
-    <div th:case="*">
-        <table class="table table-striped">
-            <thead class="thead-dark">
-            <tr>
-                <th>Occurred At</th>
-                <th>Event</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="activity : ${queueMessages}">
-                <th th:text="${activity.occurredAt}"></th>
-                <th th:text="${activity.event}"></th>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+<div id="queueMessages"></div>
 <!-- Include Bootstrap JS and Popper.js -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"
         integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
@@ -95,5 +76,31 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
+<script>
+    $(document).ready(() => {
+        $('#generateTestMessage').click(() => {
+            $.post({
+                url: '/messages',
+                success: (response) => {
+
+                }
+            });
+        });
+    });
+
+    function checkMessages() {
+        $.get({
+            url: '/messages',
+            success: (response) => {
+            }
+        }).done((data) => {
+            $('#queueMessages').html(data);
+        }).always(() => {
+            setTimeout(checkMessages, 1000);
+        });
+    };
+
+    $(document).ready(checkMessages());
+</script>
 </body>
 </html>
