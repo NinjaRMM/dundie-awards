@@ -1,6 +1,5 @@
 package com.ninjaone.dundie_awards.organization;
 
-import com.ninjaone.dundie_awards.infrastructure.AbstractEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +12,7 @@ import static lombok.AccessLevel.NONE;
 @AllArgsConstructor
 @Entity
 @Table(name = "organizations")
-public class Organization extends AbstractEntity {
+public class Organization {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

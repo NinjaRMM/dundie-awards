@@ -1,12 +1,11 @@
 package com.ninjaone.dundie_awards.activity;
 
-import com.ninjaone.dundie_awards.infrastructure.AbstractEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+
+import static lombok.AccessLevel.NONE;
 
 @Getter
 @Setter
@@ -15,11 +14,21 @@ import java.time.Instant;
 @AllArgsConstructor
 @Entity
 @Table(name = "activities")
-public class Activity extends AbstractEntity {
+public class Activity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(NONE)
+    private long id;
 
     @Column(name = "occurred_at")
     private Instant occurredAt;
 
     @Column(name = "event")
     private String event;
+
+    public Activity(Instant occurredAt, String event) {
+        this.occurredAt = occurredAt;
+        this.event = event;
+    }
 }

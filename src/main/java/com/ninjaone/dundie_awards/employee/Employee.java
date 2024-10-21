@@ -1,6 +1,5 @@
 package com.ninjaone.dundie_awards.employee;
 
-import com.ninjaone.dundie_awards.infrastructure.AbstractEntity;
 import com.ninjaone.dundie_awards.organization.Organization;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,7 +14,7 @@ import static lombok.AccessLevel.NONE;
 @Entity
 @Table(name = "employees")
 @EntityListeners(EmployeeListener.class)
-public class Employee extends AbstractEntity {
+public class Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
