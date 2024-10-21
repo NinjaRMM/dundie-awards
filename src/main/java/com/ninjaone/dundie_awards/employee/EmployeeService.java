@@ -40,8 +40,10 @@ public class EmployeeService {
     }
 
     @NotNull
-    EmployeeRecord createEmployee(Employee employee) {
-        return EmployeeRecord.fromDb(employeeRepository.save(employee));
+    EmployeeRecord createEmployee(EmployeeRecord employee) {
+        return EmployeeRecord.fromDb(
+                employeeRepository.save(employee.toDb())
+        );
     }
 
     @Transactional(isolation = REPEATABLE_READ)

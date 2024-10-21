@@ -1,10 +1,10 @@
 package com.ninjaone.dundie_awards.organization;
 
 import com.ninjaone.dundie_awards.infrastructure.AbstractEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
+
+import static lombok.AccessLevel.NONE;
 
 @Getter
 @Setter
@@ -15,6 +15,15 @@ import lombok.*;
 @Table(name = "organizations")
 public class Organization extends AbstractEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter(NONE)
+    private long id;
+
     @Column(name = "name")
     private String name;
+
+    public Organization(String name) {
+        this.name = name;
+    }
 }
