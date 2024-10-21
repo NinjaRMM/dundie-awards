@@ -45,31 +45,15 @@
         </table>
     </div>
 </div>
-<div th:switch="${activities}" class="mt-5">
-    <h2 class="mb-3">Activity Log</h2>
-    <p th:case="null" class="alert alert-warning">No activities</p>
-    <div th:case="*">
-        <table class="table table-striped">
-            <thead class="thead-dark">
-            <tr>
-                <th>Occurred At</th>
-                <th>Event</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="activity : ${activities}">
-                <th th:text="${activity.occurredAt}"></th>
-                <th th:text="${activity.event}"></th>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+<div id="activities"></div>
 <div id="queueMessages"></div>
 <div>
     <h2 class="mb-3">Admin</h2>
     <button id="generateTestMessage" type="button">
         Generate Test Message
+    </button>
+    <button id="generateTestActivity" type="button">
+        Generate Test Activity
     </button>
 </div>
 <!-- Include Bootstrap JS and Popper.js -->
@@ -86,10 +70,13 @@
     $(document).ready(() => {
         $('#generateTestMessage').click(() => {
             $.post({
-                url: '/messages',
-                success: (response) => {
+                url: '/messages'
+            });
+        });
 
-                }
+        $('#generateTestActivity').click(() => {
+            $.post({
+                url: '/activities'
             });
         });
     });
@@ -105,8 +92,20 @@
             setTimeout(checkMessages, 1000);
         });
     };
-
     $(document).ready(checkMessages());
+
+    function checkActivities() {
+        $.get({
+            url: '/activities/view',
+            success: (response) => {
+            }
+        }).done((data) => {
+            $('#activities').html(data);
+        }).always(() => {
+            setTimeout(checkActivities, 1000);
+        });
+    };
+    $(document).ready(checkActivities());
 </script>
 </body>
 </html>
