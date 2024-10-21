@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
 
-import java.time.Instant;
 import java.util.List;
 
+import static com.ninjaone.dundie_awards.activity.Message.createMessageNow;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Answers.RETURNS_SMART_NULLS;
@@ -38,13 +38,13 @@ class MessageBrokerTest {
 
         @Test
         public void shouldGetAndSendMessages() {
-            List<Activity> messagesBefore = messageBroker.getMessages();
+            List<Message> messagesBefore = messageBroker.getMessages();
             assertThat(messagesBefore).isEmpty();
 
-            Activity testMessage = new Activity(Instant.now(), "test message");
+            Message testMessage = createMessageNow("test event");
             messageBroker.sendMessage(testMessage);
 
-            List<Activity> messagesAfter = messageBroker.getMessages();
+            List<Message> messagesAfter = messageBroker.getMessages();
             assertThat(messagesAfter).hasSize(1);
             assertThat(messagesAfter.get(0)).isEqualTo(testMessage);
         }
@@ -65,17 +65,17 @@ class MessageBrokerTest {
 
         @Test
         public void shouldGetAndSendMessages() {
-            List<Activity> messagesBefore = messageBroker.getMessages();
+            List<Message> messagesBefore = messageBroker.getMessages();
             assertThat(messagesBefore).isEmpty();
 
-            Activity testMessage = new Activity(Instant.now(), "test message");
+            Message testMessage = createMessageNow("test event");
             assertThatThrownBy(() -> {
                 for (int x = 0; x < 5; x++) {
                     messageBroker.sendMessage(testMessage);
                 }
             }).isInstanceOf(MessageBrokerTimeoutException.class);
 
-            List<Activity> messagesAfter = messageBroker.getMessages();
+            List<Message> messagesAfter = messageBroker.getMessages();
             assertThat(messagesAfter).hasSize(1);
             assertThat(messagesAfter.get(0)).isEqualTo(testMessage);
         }

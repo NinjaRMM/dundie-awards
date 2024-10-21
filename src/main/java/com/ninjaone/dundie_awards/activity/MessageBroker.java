@@ -14,7 +14,7 @@ public class MessageBroker {
 
     private final DundieProperties dundieProperties;
 
-    private final LinkedBlockingQueue<Activity> messages;
+    private final LinkedBlockingQueue<Message> messages;
 
     public MessageBroker(DundieProperties dundieProperties) {
         this.dundieProperties = dundieProperties;
@@ -25,14 +25,14 @@ public class MessageBroker {
     // TODO 2024-10-21 Dom - Handle InterruptedException better
     // TODO 2024-10-21 Dom - Consider a retry/backoff on failure
     @SneakyThrows
-    public void sendMessage(Activity message) {
+    public void sendMessage(Message message) {
         boolean success = messages.offer(message, dundieProperties.messageBrokerTimeoutMs(), MILLISECONDS);
         if (!success) {
             throw new MessageBrokerTimeoutException();
         }
     }
 
-    public List<Activity> getMessages() {
+    public List<Message> getMessages() {
         return messages.stream().toList();
     }
 }

@@ -10,7 +10,7 @@ public class MessageBrokerTimeoutException extends DundieException {
                 INTERNAL_SERVER_ERROR,
                 "dundie.timeout",
                 "An internal timeout error occurred",
-                "The message broker is overloaded and could not accept the message"
+                "The event broker is overloaded and could not accept the event"
         );
     }
 }
