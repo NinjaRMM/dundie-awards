@@ -5,7 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import static com.ninjaone.dundie_awards.activity.Message.createMessageNow;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 
 @Slf4j
 @RequestMapping("/messages")
@@ -20,5 +25,13 @@ public class MessageController {
         log.trace("getMessages");
         model.addAttribute("queueMessages", messageBroker.getMessages());
         return "messages :: content";
+    }
+
+    @PostMapping
+    @ResponseBody
+    public void sendMessage() {
+        log.trace("sendMessage");
+        messageBroker.sendMessage(
+                createMessageNow(randomAlphabetic(32)));
     }
 }

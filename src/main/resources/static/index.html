@@ -66,6 +66,12 @@
     </div>
 </div>
 <div id="queueMessages"></div>
+<div>
+    <h2 class="mb-3">Admin</h2>
+    <button id="generateTestMessage" type="button">
+        Generate Test Message
+    </button>
+</div>
 <!-- Include Bootstrap JS and Popper.js -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"
         integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
@@ -90,7 +96,7 @@
 
     function checkMessages() {
         $.get({
-            url: '/messages',
+            url: '/messages/view',
             success: (response) => {
             }
         }).done((data) => {
