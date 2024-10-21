@@ -14,6 +14,7 @@ import static lombok.AccessLevel.NONE;
 @AllArgsConstructor
 @Entity
 @Table(name = "employees")
+@EntityListeners(EmployeeListener.class)
 public class Employee extends AbstractEntity {
 
     @Id

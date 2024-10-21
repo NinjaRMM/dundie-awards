@@ -19,32 +19,7 @@
     <p>Total Dundie Awards: <span th:text="${totalDundieAwards}"></span></p>
 </div>
 
-<div th:switch="${employees}" class="mt-5">
-    <p th:case="null" class="alert alert-warning">No employees</p>
-    <div th:case="*">
-        <h2 class="mb-3">Employees</h2>
-        <table class="table table-striped">
-            <thead class="thead-dark">
-            <tr>
-                <th>First name</th>
-                <th>Last name</th>
-                <th>Dundie Awards</th>
-                <th>Organization id</th>
-                <th>Organization name</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="employee : ${employees}">
-                <td th:text="${employee.firstName}"></td>
-                <td th:text="${employee.lastName}"></td>
-                <td th:text="${employee.dundieAwards}"></td>
-                <td th:text="${employee.organizationId}"></td>
-                <td th:text="${employee.organizationName}"></td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+<div id="employees"></div>
 <div id="activities"></div>
 <div id="queueMessages"></div>
 <div>
@@ -67,7 +42,14 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 <script>
+
     $(document).ready(() => {
+        $.get({
+            url: '/employees/view'
+        }).done((data) => {
+            $('#employees').html(data);
+        });
+
         $('#generateTestMessage').click(() => {
             $.post({
                 url: '/messages'

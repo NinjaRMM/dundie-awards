@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="content">
+    <div th:switch="${employees}" class="mt-5">
+        <p th:case="null" class="alert alert-warning">No employees</p>
+        <div th:case="*">
+            <h2 class="mb-3">Employees</h2>
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th>First name</th>
+                    <th>Last name</th>
+                    <th>Dundie Awards</th>
+                    <th>Organization id</th>
+                    <th>Organization name</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="employee : ${employees}">
+                    <td th:text="${employee.firstName}"></td>
+                    <td th:text="${employee.lastName}"></td>
+                    <td th:text="${employee.dundieAwards}"></td>
+                    <td th:text="${employee.organizationId}"></td>
+                    <td th:text="${employee.organizationName}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
