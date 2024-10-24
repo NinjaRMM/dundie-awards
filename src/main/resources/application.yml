@@ -4,6 +4,12 @@ springdoc:
 server:
   port: 3000
 
+logging.level.com.ninjaone: TRACE
+
+dundie:
+  messageBrokerSize: 10
+  messageBrokerTimeoutMs: 5000
+
 spring:
   spring:
     datasource:
