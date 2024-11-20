@@ -17,7 +17,7 @@ public class Employee {
     private String lastName;
 
     @Column(name = "dundie_awards")
-    private Integer dundieAwards;
+    private Integer dundieAwards=0;
 
     @ManyToOne
     private Organization organization;
