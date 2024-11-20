@@ -1,7 +1,7 @@
 package com.ninjaone.dundie_awards.controller;
 
-import com.ninjaone.dundie_awards.AwardsCache;
-import com.ninjaone.dundie_awards.MessageBroker;
+import com.ninjaone.dundie_awards.cache.AwardsCache;
+import com.ninjaone.dundie_awards.events.MessageBroker;
 import com.ninjaone.dundie_awards.repository.ActivityRepository;
 import com.ninjaone.dundie_awards.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
