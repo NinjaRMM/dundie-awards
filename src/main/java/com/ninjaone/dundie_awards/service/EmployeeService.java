@@ -1,16 +1,17 @@
 package com.ninjaone.dundie_awards.service;
 
-import com.ninjaone.dundie_awards.dto.AwardDundieDTO;
-import com.ninjaone.dundie_awards.dto.EmployeeRequestDTO;
-import com.ninjaone.dundie_awards.dto.EmployeeResponseDTO;
-import com.ninjaone.dundie_awards.dto.OrganizationDTO;
+import com.ninjaone.dundie_awards.cache.AwardsCache;
+import com.ninjaone.dundie_awards.dto.*;
+import com.ninjaone.dundie_awards.events.MessageBroker;
 import com.ninjaone.dundie_awards.exception.NotFoundException;
 import com.ninjaone.dundie_awards.mapper.EmployeeMapper;
+import com.ninjaone.dundie_awards.model.Activity;
 import com.ninjaone.dundie_awards.model.Employee;
 import com.ninjaone.dundie_awards.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,6 +24,12 @@ public class EmployeeService {
 
     @Autowired
     private OrganizationService organizationService;
+
+    @Autowired
+    private AwardsCache awardsCache;
+
+    @Autowired
+    private MessageBroker messageBroker;
 
     public void deleteEmployee(Long id) {
         Optional<Employee> optionalEmployee = employeeRepository.findById(id);
@@ -62,6 +69,9 @@ public class EmployeeService {
         OrganizationDTO orgDTO = organizationService.findById(employeeDTO.getOrganizationId());
         Employee emp = EmployeeMapper.toEntity(employeeDTO, orgDTO);
         Employee savedEmployee = employeeRepository.save(emp);
+        if(employeeDTO.getDundieAwards()>0) {
+            awardsCache.addAwards(employeeDTO.getDundieAwards());
+        }
         return EmployeeMapper.toDTO(savedEmployee);
     }
 
@@ -79,6 +89,8 @@ public class EmployeeService {
             Employee emp = optionalEmployee.get();
             emp.setDundieAwards(emp.getDundieAwards()+awardDundieDTO.getAwardQuantity());
             Employee result = employeeRepository.save(emp);
+            awardsCache.addAwards(awardDundieDTO.getAwardQuantity());
+            messageBroker.sendMessage(new ActivityEventDTO(LocalDateTime.now(), "Dundie Award given to: "+emp.getFirstName()));
             return EmployeeMapper.toDTO(result);
         }
         else {
