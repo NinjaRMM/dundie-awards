@@ -1,17 +1,13 @@
 package com.ninjaone.dundie_awards.controller;
 
 import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.employeeNotFoundException;
-import static java.lang.String.format;
+import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.organizationNotValidException;
+import static java.util.Optional.ofNullable;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,70 +15,68 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.ninjaone.dundie_awards.AwardsCache;
-import com.ninjaone.dundie_awards.MessageBroker;
 import com.ninjaone.dundie_awards.model.Employee;
-import com.ninjaone.dundie_awards.repository.ActivityRepository;
+import com.ninjaone.dundie_awards.model.Organization;
 import com.ninjaone.dundie_awards.repository.EmployeeRepository;
+import com.ninjaone.dundie_awards.repository.OrganizationRepository;
 
-@Controller
-@RequestMapping()
+@RestController
+@RequestMapping("/employees")
 public class EmployeeController {
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
+	private final EmployeeRepository employeeRepository;
+    private final OrganizationRepository organizationRepository;
 
-    @Autowired
-    private ActivityRepository activityRepository;
-
-    @Autowired
-    private MessageBroker messageBroker;
-
-    @Autowired
-    private AwardsCache awardsCache;
-
-    // get all employees
-    @GetMapping("/employees")
-    @ResponseBody
-    public List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
+    public EmployeeController(EmployeeRepository employeeRepository, OrganizationRepository organizationRepository) {
+        this.employeeRepository = employeeRepository;
+        this.organizationRepository = organizationRepository;
     }
 
-    // create employee rest api
-    @PostMapping("/employees")
-    @ResponseBody
-    public Employee createEmployee(@RequestBody Employee employee) {
-        return employeeRepository.save(employee);
-    }
-
-    // get employee by id rest api
-    @GetMapping("/employees/{id}")
-    @ResponseBody
+	@GetMapping
+	public List<Employee> getAllEmployees() {
+		return employeeRepository.findAll();
+	}
+	
+	@GetMapping("/{id}")
 	public Employee getEmployeeById(@PathVariable("id") long id) {
-		return employeeRepository.findById(id)
-				.orElseThrow(() -> employeeNotFoundException.apply(id));
+		return employeeRepository.findById(id).orElseThrow(() -> employeeNotFoundException.apply(id));
 	}
 
-    // update employee rest api
-    @PutMapping("/employees/{id}")
-    @ResponseBody
-	public Employee updateEmployee(@PathVariable("id") long id, @RequestBody Employee employeeDetails) {
-		Employee employee = employeeRepository.findById(id)
-				.orElseThrow(() -> employeeNotFoundException.apply(id));
-		employee.setFirstName(employeeDetails.getFirstName());
-		employee.setLastName(employeeDetails.getLastName());
+	@PostMapping
+	@ResponseStatus(CREATED)
+	public Employee createEmployee(@RequestBody Employee employee) {
+		//validate organization
+		//TODO: move validation to DTO/entity map layer
+		ofNullable(employee.getOrganization())
+		        .map(org -> org.getId())
+		        .filter(organizationRepository::existsById)
+		        .orElseThrow(() -> organizationNotValidException.apply(employee.getOrganization().getId()));
 		return employeeRepository.save(employee);
 	}
 
-    // delete employee rest api
-    @DeleteMapping("/employees/{id}")
-    @ResponseBody
-	public ResponseEntity<Map<String, Boolean>> deleteEmployee(@PathVariable("id") long id) {
-		Employee employee = employeeRepository.findById(id)
-				.orElseThrow(() -> employeeNotFoundException.apply(id));
+	@PutMapping("/{id}")
+	public Employee updateEmployee(@PathVariable("id") long id, @RequestBody Employee updateEmployeeRequest) {
+		Employee employee = employeeRepository.findById(id).orElseThrow(() -> employeeNotFoundException.apply(id));
+		//validation and retrieve organization
+		//TODO: move validation to DTO/entity map layer
+		Organization organization = ofNullable(updateEmployeeRequest.getOrganization())
+		        .map(org -> org.getId())
+		        .flatMap(organizationRepository::findById)
+		        .orElseThrow(() -> organizationNotValidException.apply(updateEmployeeRequest.getOrganization().getId()));
+		employee.setFirstName(updateEmployeeRequest.getFirstName());
+		employee.setLastName(updateEmployeeRequest.getLastName());
+		employee.setDundieAwards(updateEmployeeRequest.getDundieAwards());
+		employee.setOrganization(organization);
+		return employeeRepository.save(employee);
+	}
+
+	@DeleteMapping("/{id}")
+	@ResponseStatus(NO_CONTENT)
+	public void deleteEmployee(@PathVariable("id") long id) {
+		Employee employee = employeeRepository.findById(id).orElseThrow(() -> employeeNotFoundException.apply(id));
 		employeeRepository.delete(employee);
-		return ResponseEntity.ok(Map.of("deleted",Boolean.TRUE));
 	}
 }

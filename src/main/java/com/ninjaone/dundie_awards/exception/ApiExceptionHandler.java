@@ -24,8 +24,21 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 			        ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, detailMessage),
 			        null
 			    );
+			    
+	    public static Function<String, ErrorResponseException> notValidException = 
+			    detailMessage -> new ErrorResponseException(
+			        HttpStatus.BAD_REQUEST,
+			        ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detailMessage),
+			        null
+			    );
 	    
 	    public static Function<Long, ErrorResponseException> employeeNotFoundException = 
 	    		id  -> notFoundException.apply(format("Employee with id: %d not found", id));
+	    		
+		public static Function<Long, ErrorResponseException> organizationNotFoundException = 
+				id  -> notFoundException.apply(format("Organization with id: %d not found", id));
+		
+		public static Function<Long, ErrorResponseException> organizationNotValidException =
+                id -> notValidException.apply(format("Invalid organization with id: %d. Organization not found", id));
 	}
 }

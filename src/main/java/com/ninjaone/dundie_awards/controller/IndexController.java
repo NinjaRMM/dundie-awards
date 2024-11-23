@@ -32,7 +32,7 @@ public class IndexController {
     @Value("${spring.profiles.active:}")
     private String activeProfile;
 
-    @GetMapping()
+    @GetMapping
     public String getIndex(Model model) {
         model.addAttribute("employees", employeeRepository.findAll());
         model.addAttribute("activities", activityRepository.findAll());
