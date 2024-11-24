@@ -11,51 +11,54 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ninjaone.dundie_awards.model.Employee;
 import com.ninjaone.dundie_awards.repository.EmployeeRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class EmployeeService {
 
 	
 	private final EmployeeRepository employeeRepository;
     private final OrganizationService organizationService;
 
-    public EmployeeService(EmployeeRepository employeeRepository, OrganizationService organizationService) {
-        this.employeeRepository = employeeRepository;
-        this.organizationService = organizationService;
-    }
-    
     public List<Employee> getAllEmployees() {
         return employeeRepository.findAll();
     }
 
     public Employee getEmployee(long id) {
-    	return employeeRepository.findById(id).orElseThrow(() -> employeeNotFoundException.apply(id));
+    	return findEmployeeById(id);
     }
 
-    @Transactional
     public Employee createEmployee(Employee employee) {
     	 ofNullable(employee.getOrganization())
          	.ifPresent(organization -> organizationService.ensureValidOrganization(organization.getId()));
 		return employeeRepository.save(employee);
     }
 
-    @Transactional
-    public Employee updateEmployee(long id, Employee updateEmployeeRequest) {
-    	Employee employee = employeeRepository.findById(id).orElseThrow(() -> employeeNotFoundException.apply(id));
-    	ofNullable(updateEmployeeRequest.getOrganization()).ifPresentOrElse(
-            organization -> employee.setOrganization(organizationService.getValidOrganization(organization.getId())),
-            () -> employee.setOrganization(null)
-        );
-		employee.setFirstName(updateEmployeeRequest.getFirstName());
-		employee.setLastName(updateEmployeeRequest.getLastName());
-		employee.setDundieAwards(updateEmployeeRequest.getDundieAwards());
-		return employeeRepository.save(employee);
+    
+    public Employee updateEmployee(long id, Employee updateRequest) {
+    	Employee existingEmployee = findEmployeeById(id);
+
+    	Employee updatedEmployee = existingEmployee.toBuilder()
+    	        .organization(
+	        		ofNullable(updateRequest.getOrganization())
+	        			.map(org -> organizationService.getValidOrganization(org.getId()))
+	        			.orElse(null))
+    	        .firstName(updateRequest.getFirstName())
+    	        .lastName(updateRequest.getLastName())
+    	        .dundieAwards(updateRequest.getDundieAwards())
+    	        .build();
+    	
+		return employeeRepository.save(updatedEmployee);
     }
 
-    @Transactional
     public void deleteEmployee(long id) {
-    	Employee employee = employeeRepository.findById(id).orElseThrow(() -> employeeNotFoundException.apply(id));
-		employeeRepository.delete(employee);
+		employeeRepository.delete(findEmployeeById(id));
     }
     
-
+    private Employee findEmployeeById(long id) {
+        return employeeRepository.findById(id)
+                .orElseThrow(() -> employeeNotFoundException.apply(id));
+    }
 }

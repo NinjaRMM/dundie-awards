@@ -1,6 +1,5 @@
 package com.ninjaone.dundie_awards.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,22 +11,18 @@ import com.ninjaone.dundie_awards.MessageBroker;
 import com.ninjaone.dundie_awards.repository.ActivityRepository;
 import com.ninjaone.dundie_awards.repository.EmployeeRepository;
 
+import lombok.RequiredArgsConstructor;
+
 
 @Controller
 @RequestMapping("/")
+@RequiredArgsConstructor
 public class IndexController {
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
-
-    @Autowired
-    private ActivityRepository activityRepository;
-
-    @Autowired
-    private MessageBroker messageBroker;
-
-    @Autowired
-    private AwardsCache awardsCache;
+	private final EmployeeRepository employeeRepository;
+    private final ActivityRepository activityRepository;
+    private final MessageBroker messageBroker;
+    private final AwardsCache awardsCache;
     
     @Value("${spring.profiles.active:}")
     private String activeProfile;
@@ -41,4 +36,5 @@ public class IndexController {
         model.addAttribute("isDev", "dev".equalsIgnoreCase(activeProfile));
         return "index";
     }
+    
 }

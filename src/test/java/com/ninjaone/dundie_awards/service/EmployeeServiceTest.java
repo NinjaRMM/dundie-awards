@@ -1,6 +1,7 @@
 package com.ninjaone.dundie_awards.service;
 
 import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.invalidIdException;
+import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployee;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.BDDMockito.given;
@@ -35,17 +36,6 @@ class EmployeeServiceTest {
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
-    }
-
-    private Employee createEmployee(String firstName, String lastName, int dundieAwards, Long organizationId) {
-        Organization organization = new Organization();
-        organization.setId(organizationId);
-        Employee employee = new Employee();
-        employee.setFirstName(firstName);
-        employee.setLastName(lastName);
-        employee.setDundieAwards(dundieAwards);
-        employee.setOrganization(organization);
-        return employee;
     }
 
     @Nested
@@ -142,15 +132,21 @@ class EmployeeServiceTest {
         void shouldUpdateEmployee() {
             Employee existingEmployee = createEmployee("Ryan", "Howard", 0, 1L);
             Employee updatedDetails = createEmployee("Ryan", "Howard", 5, 1L);
+            Employee expectedUpdatedEmployee = existingEmployee.toBuilder()
+                    .dundieAwards(5)
+                    .firstName("Ryan")
+                    .lastName("Howard")
+                    .organization(updatedDetails.getOrganization())
+                    .build();
             given(employeeRepository.findById(1L)).willReturn(Optional.of(existingEmployee));
             given(organizationService.getValidOrganization(1L)).willReturn(updatedDetails.getOrganization());
-            given(employeeRepository.save(existingEmployee)).willReturn(existingEmployee);
+            given(employeeRepository.save(existingEmployee)).willReturn(expectedUpdatedEmployee);
 
             Employee updatedEmployee = employeeService.updateEmployee(1L, updatedDetails);
 
             assertThat(updatedEmployee.getDundieAwards()).isEqualTo(5);
             verify(employeeRepository).findById(1L);
-            verify(employeeRepository).save(existingEmployee);
+            verify(employeeRepository).save(expectedUpdatedEmployee);
         }
 
         @Test
@@ -158,14 +154,26 @@ class EmployeeServiceTest {
             Employee existingEmployee = createEmployee("Ryan", "Howard", 0, 1L);
             Employee updatedDetails = createEmployee("Ryan", "Howard", 5, null);
             updatedDetails.setOrganization(null);
+
+            Employee expectedUpdatedEmployee = existingEmployee.toBuilder()
+                    .organization(null)
+                    .dundieAwards(5)
+                    .firstName("Ryan")
+                    .lastName("Howard")
+                    .build();
+
             given(employeeRepository.findById(1L)).willReturn(Optional.of(existingEmployee));
-            given(employeeRepository.save(existingEmployee)).willReturn(existingEmployee);
+            given(employeeRepository.save(expectedUpdatedEmployee)).willReturn(expectedUpdatedEmployee);
 
             Employee updatedEmployee = employeeService.updateEmployee(1L, updatedDetails);
 
             assertThat(updatedEmployee.getOrganization()).isNull();
+            assertThat(updatedEmployee.getDundieAwards()).isEqualTo(5);
+            assertThat(updatedEmployee.getFirstName()).isEqualTo("Ryan");
+            assertThat(updatedEmployee.getLastName()).isEqualTo("Howard");
+
             verify(employeeRepository).findById(1L);
-            verify(employeeRepository).save(existingEmployee);
+            verify(employeeRepository).save(expectedUpdatedEmployee);
         }
         
         @Test

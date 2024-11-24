@@ -1,8 +1,8 @@
 package com.ninjaone.dundie_awards.controller;
 
+import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeJson;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,26 +24,14 @@ public class EmployeeControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    private String createEmployeeJson(String firstName, String lastName, int dundieAwards, long organizationId) {
-        return String.format("""
-                {
-                  "firstName": "%s",
-                  "lastName": "%s",
-                  "dundieAwards": %d,
-                  "organization": {
-                    "id": %d
-                  }
-                }
-                """, firstName, lastName, dundieAwards, organizationId);
-    }
+    
 
     @Nested
     class CreateEmployeeTests {
 
         @Test
         public void shouldCreateEmployee() throws Exception {
-            String employee = createEmployeeJson("Ryan", "Howard", 0, 1);
+            String employee = createEmployeeJson("Ryan", "Howard", 0, 1L);
 
             mockMvc.perform(
                     post("/employees")
@@ -58,7 +46,7 @@ public class EmployeeControllerIntegrationTest {
 
         @Test
         public void shouldReturnBadRequestForInvalidOrganizationId() throws Exception {
-            String invalidEmployee = createEmployeeJson("Ryan", "Howard", 0, 999);
+            String invalidEmployee = createEmployeeJson("Ryan", "Howard", 0, 999L);
 
             mockMvc.perform(
                     post("/employees")
@@ -118,7 +106,7 @@ public class EmployeeControllerIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("firstName", is("John")))
                     .andExpect(jsonPath("lastName", is("Doe")))
-                    .andExpect(jsonPath("dundieAwards",nullValue()))
+                    .andExpect(jsonPath("dundieAwards",is(0)))
                     .andExpect(jsonPath("organization.id", is(1)))
                     .andExpect(jsonPath("organization.name", is("Pikashu")));
         }
@@ -137,7 +125,7 @@ public class EmployeeControllerIntegrationTest {
 
         @Test
         public void shouldUpdateEmployee() throws Exception {
-            String updatedEmployee = createEmployeeJson("Ryan", "Howard", 5, 1);
+            String updatedEmployee = createEmployeeJson("Ryan", "Howard", 5, 1L);
 
             mockMvc.perform(
                     put("/employees/{id}", 1)
@@ -153,7 +141,7 @@ public class EmployeeControllerIntegrationTest {
         
         @Test
         public void shouldReturnBadRequestForInvalidOrganizationId() throws Exception {
-            String invalidUpdatedEmployee = createEmployeeJson("Ryan", "Howard", 5, 999);
+            String invalidUpdatedEmployee = createEmployeeJson("Ryan", "Howard", 5, 999L);
 
             mockMvc.perform(
                     put("/employees/{id}", 1)

@@ -9,15 +9,14 @@ import org.springframework.stereotype.Service;
 import com.ninjaone.dundie_awards.model.Organization;
 import com.ninjaone.dundie_awards.repository.OrganizationRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class OrganizationService {
 	
 	private final OrganizationRepository organizationRepository;
 
-	public OrganizationService(OrganizationRepository organizationRepository) {
-		this.organizationRepository = organizationRepository;
-	}
-	
 	public void ensureValidOrganization(Long id) {
 	    ofNullable(id)
 	        .filter(organizationRepository::existsById)

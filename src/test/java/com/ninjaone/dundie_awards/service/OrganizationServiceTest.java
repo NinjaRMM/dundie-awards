@@ -30,12 +30,6 @@ class OrganizationServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    private Organization createOrganization(Long id) {
-        Organization organization = new Organization();
-        organization.setId(id);
-        return organization;
-    }
-
     @Nested
     class EnsureValidOrganizationTests {
 
@@ -81,7 +75,7 @@ class OrganizationServiceTest {
         @Test
         void shouldReturnOrganizationWhenExists() {
             Long validId = 1L;
-            Organization organization = createOrganization(validId);
+            Organization organization = Organization.builder().id(validId).build();
             given(organizationRepository.findById(validId)).willReturn(Optional.of(organization));
 
             Organization result = organizationService.getValidOrganization(validId);

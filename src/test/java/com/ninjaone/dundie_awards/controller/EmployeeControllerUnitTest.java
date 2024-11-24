@@ -3,6 +3,7 @@ package com.ninjaone.dundie_awards.controller;
 import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.employeeNotFoundException;
 import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.notValidException;
 import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.organizationNotValidException;
+import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployee;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.BDDMockito.given;
@@ -20,7 +21,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.web.ErrorResponseException;
 
 import com.ninjaone.dundie_awards.model.Employee;
-import com.ninjaone.dundie_awards.model.Organization;
 import com.ninjaone.dundie_awards.service.EmployeeService;
 
 class EmployeeControllerUnitTest {
@@ -36,22 +36,12 @@ class EmployeeControllerUnitTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    private Employee createEmployee(String firstName, String lastName, int dundieAwards, long organizationId) {
-        Employee employee = new Employee();
-        employee.setFirstName(firstName);
-        employee.setLastName(lastName);
-        employee.setDundieAwards(dundieAwards);
-        employee.setOrganization(new Organization());
-        employee.getOrganization().setId(organizationId);
-        return employee;
-    }
-
     @Nested
     class CreateEmployeeTests {
 
         @Test
         void shouldCreateEmployee() {
-            Employee employee = createEmployee("Ryan", "Howard", 0, 1);
+            Employee employee = createEmployee("Ryan", "Howard", 0, 1L);
             given(employeeService.createEmployee(employee)).willReturn(employee);
 
             Employee createdEmployee = employeeController.createEmployee(employee);
@@ -62,7 +52,7 @@ class EmployeeControllerUnitTest {
         
         @Test
         void shouldCreateEmployeeWithNullOrganization() {
-            Employee employee = createEmployee("Ryan", "Howard", 0, 0);
+            Employee employee = createEmployee("Ryan", "Howard", 0, 0L);
             employee.setOrganization(null);
             given(employeeService.createEmployee(employee)).willReturn(employee);
 
@@ -74,8 +64,8 @@ class EmployeeControllerUnitTest {
 
         @Test
         void shouldReturnBadRequestForNullOrganizationId() {
-            Employee employeeWithNullOrgId = createEmployee("Ryan", "Howard", 0, 0);
-            employeeWithNullOrgId.getOrganization().setId(null);
+            Employee employeeWithNullOrgId = createEmployee("Ryan", "Howard", 0, 0L);
+            employeeWithNullOrgId.setOrganization(employeeWithNullOrgId.getOrganization().toBuilder().id(null).build());
 
             given(employeeService.createEmployee(employeeWithNullOrgId))
                     .willThrow(notValidException.apply("The provided organization ID cannot be null."));
@@ -90,7 +80,7 @@ class EmployeeControllerUnitTest {
 
         @Test
         void shouldReturnBadRequestForInvalidOrganizationId() {
-            Employee invalidEmployee = createEmployee("Ryan", "Howard", 0, 999);
+            Employee invalidEmployee = createEmployee("Ryan", "Howard", 0, 999L);
             given(employeeService.createEmployee(invalidEmployee))
                     .willThrow(organizationNotValidException.apply(invalidEmployee.getOrganization().getId()));
 
@@ -108,7 +98,7 @@ class EmployeeControllerUnitTest {
 
         @Test
         void shouldGetEmployeeById() {
-            Employee employee = createEmployee("John", "Doe", 0, 1);
+            Employee employee = createEmployee("John", "Doe", 0, 1L);
             given(employeeService.getEmployee(1L)).willReturn(employee);
 
             Employee foundEmployee = employeeController.getEmployeeById(1L);
@@ -136,8 +126,8 @@ class EmployeeControllerUnitTest {
 
         @Test
         void shouldUpdateEmployee() {
-            Employee updatedDetails = createEmployee("Ryan", "Howard", 5, 1);
-            Employee updatedEmployee = createEmployee("Ryan", "Howard", 5, 1); 
+            Employee updatedDetails = createEmployee("Ryan", "Howard", 5, 1L);
+            Employee updatedEmployee = createEmployee("Ryan", "Howard", 5, 1L); 
             given(employeeService.updateEmployee(1L, updatedDetails)).willReturn(updatedEmployee);
 
             Employee result = employeeController.updateEmployee(1L, updatedDetails);
@@ -148,9 +138,9 @@ class EmployeeControllerUnitTest {
         
         @Test
         void shouldUpdateEmployeeWithNullOrganization() {
-            Employee employeeToUpdate = createEmployee("Ryan", "Howard", 5, 0);
+            Employee employeeToUpdate = createEmployee("Ryan", "Howard", 5, 0L);
             employeeToUpdate.setOrganization(null);
-            Employee updatedEmployee = createEmployee("Ryan", "Howard", 5, 0);
+            Employee updatedEmployee = createEmployee("Ryan", "Howard", 5, 0L);
             updatedEmployee.setOrganization(null);
 
             given(employeeService.updateEmployee(1L, employeeToUpdate)).willReturn(updatedEmployee);
@@ -164,7 +154,7 @@ class EmployeeControllerUnitTest {
 
         @Test
         void shouldReturnBadRequestForInvalidOrganizationId() {
-            Employee invalidDetails = createEmployee("Ryan", "Howard", 5, 999);
+            Employee invalidDetails = createEmployee("Ryan", "Howard", 5, 999L);
             given(employeeService.updateEmployee(1L, invalidDetails))
                     .willThrow(organizationNotValidException.apply(999L));
 
@@ -178,8 +168,8 @@ class EmployeeControllerUnitTest {
         
         @Test
         void shouldReturnBadRequestForNullOrganizationIdOnUpdate() {
-            Employee employeeWithNullOrgId = createEmployee("Ryan", "Howard", 5, 0);
-            employeeWithNullOrgId.getOrganization().setId(null);
+            Employee employeeWithNullOrgId = createEmployee("Ryan", "Howard", 5, 0L);
+            employeeWithNullOrgId.setOrganization(employeeWithNullOrgId.getOrganization().toBuilder().id(null).build());
 
             given(employeeService.updateEmployee(1L, employeeWithNullOrgId))
                     .willThrow(notValidException.apply("The provided organization ID cannot be null."));

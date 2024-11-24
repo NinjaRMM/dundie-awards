@@ -15,18 +15,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ninjaone.dundie_awards.AwardsCache;
+import com.ninjaone.dundie_awards.MessageBroker;
 import com.ninjaone.dundie_awards.model.Employee;
+import com.ninjaone.dundie_awards.repository.ActivityRepository;
+import com.ninjaone.dundie_awards.repository.EmployeeRepository;
 import com.ninjaone.dundie_awards.service.EmployeeService;
+
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/employees")
+@RequiredArgsConstructor
 public class EmployeeController {
 
 	private final EmployeeService employeeService;
-
-	public EmployeeController(EmployeeService employeeService) {
-		this.employeeService = employeeService;
-	}
 
 	@GetMapping
 	public List<Employee> getAllEmployees() {
