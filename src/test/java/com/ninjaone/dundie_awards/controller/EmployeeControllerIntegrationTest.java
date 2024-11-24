@@ -1,4 +1,4 @@
-package com.ninjaone.dundie_awards;
+package com.ninjaone.dundie_awards.controller;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -68,6 +68,45 @@ public class EmployeeControllerIntegrationTest {
                     .andExpect(jsonPath("$.status", is(400)))
                     .andExpect(jsonPath("$.detail", equalTo("Invalid organization with id: 999. Organization not found")));
         }
+        
+        @Test
+        public void shouldCreateEmployeeWithNullOrganization() throws Exception {
+            String employeeWithNullOrganization = """
+                {
+                  "firstName": "Ryan",
+                  "lastName": "Howard",
+                  "dundieAwards": 0,
+                  "organization": null
+                }
+                """;
+
+            mockMvc.perform(
+                    post("/employees")
+                            .content(employeeWithNullOrganization)
+                            .contentType(APPLICATION_JSON))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("organization").doesNotExist());
+        }
+
+        @Test
+        public void shouldReturnBadRequestForNullOrganizationId() throws Exception {
+            String employeeWithNullOrgId = """
+                {
+                  "firstName": "Ryan",
+                  "lastName": "Howard",
+                  "dundieAwards": 0,
+                  "organization": { "id": null }
+                }
+                """;
+
+            mockMvc.perform(
+                    post("/employees")
+                            .content(employeeWithNullOrgId)
+                            .contentType(APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.status", is(400)))
+                    .andExpect(jsonPath("$.detail", equalTo("The provided organization ID cannot be null.")));
+        }
     }
 
     @Nested
@@ -123,6 +162,45 @@ public class EmployeeControllerIntegrationTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.status", is(400)))
                     .andExpect(jsonPath("$.detail", equalTo("Invalid organization with id: 999. Organization not found")));
+        }
+        
+        @Test
+        public void shouldUpdateEmployeeWithNullOrganization() throws Exception {
+            String updatedEmployeeWithNullOrg = """
+                {
+                  "firstName": "Ryan",
+                  "lastName": "Howard",
+                  "dundieAwards": 5,
+                  "organization": null
+                }
+                """;
+
+            mockMvc.perform(
+                    put("/employees/{id}", 1)
+                            .content(updatedEmployeeWithNullOrg)
+                            .contentType(APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("organization").doesNotExist());
+        }
+
+        @Test
+        public void shouldReturnBadRequestForNullOrganizationIdOnUpdate() throws Exception {
+            String updatedEmployeeWithNullOrgId = """
+                {
+                  "firstName": "Ryan",
+                  "lastName": "Howard",
+                  "dundieAwards": 5,
+                  "organization": { "id": null }
+                }
+                """;
+
+            mockMvc.perform(
+                    put("/employees/{id}", 1)
+                            .content(updatedEmployeeWithNullOrgId)
+                            .contentType(APPLICATION_JSON))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.status", is(400)))
+                    .andExpect(jsonPath("$.detail", equalTo("The provided organization ID cannot be null.")));
         }
     }
 
