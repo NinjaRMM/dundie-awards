@@ -26,7 +26,6 @@ class EmployeeDtoTransformationTest {
         
         EmployeeDto result = EmployeeDto.toDto(source);
         
-        //assert EmployeeDto equals Entity
         assertSoftly(softly -> {
             softly.assertThat(result.id()).isEqualTo(source.getId());
             softly.assertThat(result.firstName()).isEqualTo(source.getFirstName());

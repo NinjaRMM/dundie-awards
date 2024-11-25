@@ -1,7 +1,6 @@
 package com.ninjaone.dundie_awards.controller;
 
 import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.employeeNotFoundException;
-//import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.organizationNotValidException;
 import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeDto;
 import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeUpdateRequestDto;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.ninjaone.dundie_awards.controller.rest.EmployeeController;
 import com.ninjaone.dundie_awards.dto.EmployeeDto;
 import com.ninjaone.dundie_awards.dto.EmployeeUpdateRequestDto;
 import com.ninjaone.dundie_awards.service.EmployeeService;

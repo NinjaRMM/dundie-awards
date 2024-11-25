@@ -1,7 +1,6 @@
 package com.ninjaone.dundie_awards.service;
 
 import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.employeeNotFoundException;
-import static java.util.Optional.ofNullable;
 
 import java.util.List;
 import java.util.stream.Collectors;

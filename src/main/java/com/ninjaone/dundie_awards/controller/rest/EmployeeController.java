@@ -1,4 +1,4 @@
-package com.ninjaone.dundie_awards.controller;
+package com.ninjaone.dundie_awards.controller.rest;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;

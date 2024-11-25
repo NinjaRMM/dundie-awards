@@ -11,7 +11,6 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
@@ -138,12 +137,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		public static Function<Long, NoSuchElementException> organizationNotFoundException = 
 	    		id  -> new NoSuchElementException(format("Organization with id: %d not found", id));
 	    		
-//		public static Function<Long, IllegalArgumentException> organizationNotValidException =
-//                id -> new IllegalArgumentException(format("Invalid organization with id: %d. Organization not found", id));
-//        
-//        public static final Supplier<IllegalArgumentException> invalidIdException = 
-//                () -> new IllegalArgumentException("The provided organization ID cannot be null.");
-
 	}
 	
 }
