@@ -1,10 +1,11 @@
 package com.ninjaone.dundie_awards.service;
 
-import static com.ninjaone.dundie_awards.util.TestEntityFactory.*;
+import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployee;
+import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeDto;
+import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeUpdateRequestDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 import java.util.NoSuchElementException;
@@ -46,13 +47,11 @@ class EmployeeServiceTest {
     	void shouldCreateEmployee() {
     	    EmployeeDto employeeDto = createEmployeeDto("Ryan", "Howard", 0, 1L);
     	    Employee employee = createEmployee("Ryan", "Howard", 0, 1L);
-    	    given(organizationService.getValidOrganization(1L)).willReturn(employee.getOrganization());
     	    given(employeeRepository.save(employee)).willReturn(employee);
 
     	    EmployeeDto createdEmployee = employeeService.createEmployee(employeeDto);
 
     	    assertThat(createdEmployee).isEqualTo(EmployeeDto.toDto(employee));
-    	    verify(organizationService).ensureValidOrganization(1L);
     	    verify(employeeRepository).save(employee);
     	}
 
@@ -69,21 +68,6 @@ class EmployeeServiceTest {
             verify(employeeRepository).save(employee);
         }
         
-        @Test
-        void shouldReturnBadRequestForInvalidOrganizationId() {
-            Employee invalidEmployee = createEmployee("Ryan", "Howard", 0, 999L);
-
-            doThrow(new IllegalArgumentException("Invalid organization with id: 999. Organization not found"))
-                .when(organizationService).ensureValidOrganization(999L);
-
-            IllegalArgumentException exception = catchThrowableOfType(
-                () -> employeeService.createEmployee(EmployeeDto.toDto(invalidEmployee)),
-                IllegalArgumentException.class
-            );
-
-            assertThat(exception.getMessage()).isEqualTo("Invalid organization with id: 999. Organization not found");
-        }
-
     }
 
     @Nested
@@ -128,7 +112,6 @@ class EmployeeServiceTest {
     	            .build();
     	    
     	    given(employeeRepository.findById(1L)).willReturn(Optional.of(existingEmployee));
-    	    given(organizationService.getValidOrganization(1L)).willReturn(expectedUpdatedEmployee.getOrganization());
     	    given(employeeRepository.save(expectedUpdatedEmployee)).willReturn(expectedUpdatedEmployee);
 
     	    EmployeeDto updatedEmployee = employeeService.updateEmployee(1L, updateRequest);
@@ -164,30 +147,6 @@ class EmployeeServiceTest {
     	    verify(employeeRepository).findById(1L);
     	    verify(employeeRepository).save(expectedUpdatedEmployee);
     	}
-
-        
-        @Test
-        void shouldReturnBadRequestForInvalidOrganizationIdOnUpdate() {
-            Employee existingEmployee = createEmployee("Ryan", "Howard", 0, 1L);
-            EmployeeUpdateRequestDto invalidUpdatedRequest = EmployeeUpdateRequestDto.builder()
-            		.firstName("Ryan")
-            		.lastName("Howard")
-            		.dundieAwards(5)
-            		.organizationId(999L)
-            		.build();
-
-            given(employeeRepository.findById(1L)).willReturn(Optional.of(existingEmployee));
-            doThrow(new IllegalArgumentException("Invalid organization with id: 999. Organization not found"))
-                .when(organizationService).getValidOrganization(999L);
-
-            IllegalArgumentException exception = catchThrowableOfType(
-                () -> employeeService.updateEmployee(1L, invalidUpdatedRequest),
-                IllegalArgumentException.class
-            );
-
-            assertThat(exception).isNotNull();
-            assertThat(exception.getMessage()).isEqualTo("Invalid organization with id: 999. Organization not found");
-        }
 
     }
 

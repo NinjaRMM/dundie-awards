@@ -38,10 +38,7 @@ public class EmployeeService {
     }
 
     public EmployeeDto createEmployee(EmployeeDto employeeDto) {
-    	Employee employee = employeeDto.toEntity();
-    	 ofNullable(employee.getOrganization())
-         	.ifPresent(organization -> organizationService.ensureValidOrganization(organization.getId()));
-    	return EmployeeDto.toDto(employeeRepository.save(employee));
+    	return EmployeeDto.toDto(employeeRepository.save(employeeDto.toEntity()));
     }
 
     public EmployeeDto updateEmployee(long id, EmployeeUpdateRequestDto updateRequest) {

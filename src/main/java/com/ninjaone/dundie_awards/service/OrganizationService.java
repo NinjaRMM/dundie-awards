@@ -1,7 +1,6 @@
 package com.ninjaone.dundie_awards.service;
 
-import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.invalidIdException;
-import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.organizationNotValidException;
+import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.organizationNotFoundException;
 import static java.util.Optional.ofNullable;
 
 import org.springframework.stereotype.Service;
@@ -16,21 +15,22 @@ import lombok.RequiredArgsConstructor;
 public class OrganizationService {
 	
 	private final OrganizationRepository organizationRepository;
+	
+	public boolean exists(Long id) {
+	    return ofNullable(id)
+	        .map(organizationRepository::existsById)
+	        .orElse(false);
+	}
 
-	public void ensureValidOrganization(Long id) {
-	    ofNullable(id)
-	        .filter(organizationRepository::existsById)
-	        .orElseThrow(() -> id == null 
-	            ? invalidIdException.get()
-	            : organizationNotValidException.apply(id));
-	}
-	
-	
-	public Organization getValidOrganization(Long id) {
+	public Organization getOrganization(Long id) {
 		return ofNullable(id)
-				.map(validId -> organizationRepository.findById(validId)
-		                .orElseThrow(() -> organizationNotValidException.apply(id)))
-				.orElseThrow(()->invalidIdException.get());
-	}
+		        .map(this::findOrganizationById)
+		        .orElse(null);
+    }
+	
+	private Organization findOrganizationById(Long id) {
+        return organizationRepository.findById(id)
+                .orElseThrow(() -> organizationNotFoundException.apply(id));
+    }
 
 }

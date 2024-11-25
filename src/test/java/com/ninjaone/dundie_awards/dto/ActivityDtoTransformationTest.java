@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import com.ninjaone.dundie_awards.model.Activity;
 
-class ActivityDtoTest {
+class ActivityDtoTransformationTest {
 
     @Test
     void shouldConvertActivityToActivityDto() {

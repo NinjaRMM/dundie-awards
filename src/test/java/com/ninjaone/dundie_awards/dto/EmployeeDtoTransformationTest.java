@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.ninjaone.dundie_awards.model.Employee;
 import com.ninjaone.dundie_awards.model.Organization;
 
-class EmployeeDtoTest {
+class EmployeeDtoTransformationTest {
 
     @Test
     void shouldCheckAllValuesAreCopied() {

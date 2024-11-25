@@ -1,27 +1,35 @@
 package com.ninjaone.dundie_awards.dto;
 
-import com.ninjaone.dundie_awards.model.Employee;
-import com.ninjaone.dundie_awards.model.Organization;
 import static java.util.Optional.ofNullable;
 
+import com.ninjaone.dundie_awards.model.Employee;
+import com.ninjaone.dundie_awards.model.Organization;
+import com.ninjaone.dundie_awards.validation.ValidOrganizationId;
+
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
 public record EmployeeDto(
-        @NotNull
+		@Nullable
+		@Min(0)
         Long id,
         @NotNull
+        @NotBlank
         String firstName,
         @NotNull
+        @NotBlank
         String lastName,
         @NotNull
-        @Min(1)
+        @Min(0)
         int dundieAwards,
-        @NotNull
+        @Nullable
+        @ValidOrganizationId
         Long organizationId,
-        @NotNull
+        @Nullable
         String organizationName
 ) {
 

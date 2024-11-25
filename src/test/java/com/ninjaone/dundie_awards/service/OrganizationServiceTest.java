@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -31,45 +32,6 @@ class OrganizationServiceTest {
     }
 
     @Nested
-    class EnsureValidOrganizationTests {
-
-        @Test
-        void shouldPassWhenOrganizationExists() {
-            Long validId = 1L;
-            given(organizationRepository.existsById(validId)).willReturn(true);
-
-            organizationService.ensureValidOrganization(validId);
-
-            verify(organizationRepository).existsById(validId);
-        }
-
-        @Test
-        void shouldThrowInvalidIdExceptionForNullId() {
-            IllegalArgumentException exception = catchThrowableOfType(
-                () -> organizationService.ensureValidOrganization(null),
-                IllegalArgumentException.class
-            );
-
-            assertThat(exception).isNotNull();
-            assertThat(exception.getMessage()).isEqualTo("The provided organization ID cannot be null.");
-        }
-
-        @Test
-        void shouldThrowOrganizationNotValidExceptionForNonExistingOrganization() {
-            Long invalidId = 999L;
-            given(organizationRepository.existsById(invalidId)).willReturn(false);
-
-            IllegalArgumentException exception = catchThrowableOfType(
-                () -> organizationService.ensureValidOrganization(invalidId),
-                IllegalArgumentException.class
-            );
-
-            assertThat(exception).isNotNull();
-            assertThat(exception.getMessage()).isEqualTo("Invalid organization with id: 999. Organization not found");
-        }
-    }
-
-    @Nested
     class GetValidOrganizationTests {
 
         @Test
@@ -78,35 +40,32 @@ class OrganizationServiceTest {
             Organization organization = Organization.builder().id(validId).build();
             given(organizationRepository.findById(validId)).willReturn(Optional.of(organization));
 
-            Organization result = organizationService.getValidOrganization(validId);
+            Organization result = organizationService.getOrganization(validId);
 
             assertThat(result).isEqualTo(organization);
             verify(organizationRepository).findById(validId);
         }
 
         @Test
-        void shouldThrowInvalidIdExceptionForNullId() {
-            IllegalArgumentException exception = catchThrowableOfType(
-                () -> organizationService.getValidOrganization(null),
-                IllegalArgumentException.class
-            );
+        void shouldReturnNullForNullId() {
+            Organization organization = organizationService.getOrganization(null);
 
-            assertThat(exception).isNotNull();
-            assertThat(exception.getMessage()).isEqualTo("The provided organization ID cannot be null.");
+            assertThat(organization).isNull();
         }
 
+
         @Test
-        void shouldThrowOrganizationNotValidExceptionForNonExistingOrganization() {
+        void shouldThrowOrganizationNotFoundExceptionForNonExistingOrganization() {
             Long invalidId = 999L;
             given(organizationRepository.findById(invalidId)).willReturn(Optional.empty());
 
-            IllegalArgumentException exception = catchThrowableOfType(
-                () -> organizationService.getValidOrganization(invalidId),
-                IllegalArgumentException.class
+            NoSuchElementException exception = catchThrowableOfType(
+                () -> organizationService.getOrganization(invalidId),
+                NoSuchElementException.class
             );
 
             assertThat(exception).isNotNull();
-            assertThat(exception.getMessage()).isEqualTo("Invalid organization with id: 999. Organization not found");
+            assertThat(exception.getMessage()).isEqualTo("Organization with id: 999 not found");
         }
     }
 }

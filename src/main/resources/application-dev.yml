@@ -24,3 +24,5 @@ spring:
       static-locations: classpath:/static/
       cache:
         period: 0
+    locale: en_US
+    locale-resolver: fixed

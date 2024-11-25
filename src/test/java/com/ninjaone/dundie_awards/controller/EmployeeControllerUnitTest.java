@@ -1,7 +1,7 @@
 package com.ninjaone.dundie_awards.controller;
 
 import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.employeeNotFoundException;
-import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.organizationNotValidException;
+//import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.organizationNotValidException;
 import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeDto;
 import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeUpdateRequestDto;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,20 +61,6 @@ class EmployeeControllerUnitTest {
             verify(employeeService).createEmployee(employeeDto);
         }
 
-        @Test
-        void shouldReturnBadRequestForInvalidOrganizationId() {
-            EmployeeDto invalidEmployee = createEmployeeDto("Ryan", "Howard", 0, 999L);
-
-            given(employeeService.createEmployee(invalidEmployee))
-                    .willThrow(organizationNotValidException.apply(invalidEmployee.organizationId()));
-
-            IllegalArgumentException organizationNotValidException = catchThrowableOfType(
-                    () -> employeeController.createEmployee(invalidEmployee),
-                    IllegalArgumentException.class
-            );
-
-            assertThat(organizationNotValidException.getMessage()).isEqualTo("Invalid organization with id: 999. Organization not found");
-        }
     }
 
     @Nested
@@ -132,20 +118,6 @@ class EmployeeControllerUnitTest {
             verify(employeeService).updateEmployee(1L, updateRequest);
         }
 
-        @Test
-        void shouldReturnBadRequestForInvalidOrganizationId() {
-            EmployeeUpdateRequestDto invalidRequest = createEmployeeUpdateRequestDto("Ryan", "Howard", 5, 999L);
-
-            given(employeeService.updateEmployee(1L, invalidRequest))
-                    .willThrow(organizationNotValidException.apply(999L));
-
-            IllegalArgumentException organizationNotValidException = catchThrowableOfType(
-                    () -> employeeController.updateEmployee(1L, invalidRequest),
-                    IllegalArgumentException.class
-                );
-
-            assertThat(organizationNotValidException.getMessage()).isEqualTo("Invalid organization with id: 999. Organization not found");
-        }
     }
 
     @Nested

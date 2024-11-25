@@ -14,7 +14,7 @@ import com.ninjaone.dundie_awards.model.Employee;
 import com.ninjaone.dundie_awards.model.Organization;
 import com.ninjaone.dundie_awards.service.OrganizationService;
 
-class EmployeeUpdateRequestDtoTest {
+class EmployeeUpdateRequestDtoTransformationTest {
 	
 	@Mock
     private OrganizationService organizationService;
@@ -31,7 +31,7 @@ class EmployeeUpdateRequestDtoTest {
                 .name("Squanchy")
                 .build();
 
-        given(organizationService.getValidOrganization(2L)).willReturn(mockOrganization);
+        given(organizationService.getOrganization(2L)).willReturn(mockOrganization);
 
         Employee existingEmployee = createEmployee("Original", "Employee", 5, 1L);
 
