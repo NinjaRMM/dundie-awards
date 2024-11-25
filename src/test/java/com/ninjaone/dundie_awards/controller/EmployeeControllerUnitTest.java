@@ -9,6 +9,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.ninjaone.dundie_awards.controller.rest.EmployeeController;
+import com.ninjaone.dundie_awards.controller.rest.EmployeeControllerImpl;
 import com.ninjaone.dundie_awards.dto.EmployeeDto;
 import com.ninjaone.dundie_awards.dto.EmployeeUpdateRequestDto;
 import com.ninjaone.dundie_awards.service.EmployeeService;
@@ -29,7 +30,7 @@ class EmployeeControllerUnitTest {
     private EmployeeService employeeService;
 
     @InjectMocks
-    private EmployeeController employeeController;
+    private EmployeeControllerImpl employeeController;
 
     @BeforeEach
     void setup() {
@@ -62,6 +63,28 @@ class EmployeeControllerUnitTest {
         }
 
     }
+    
+    @Nested
+    class GetAllEmployeesTests {
+
+        @Test
+        void shouldGetAllEmployees() {
+            List<EmployeeDto> mockEmployees = List.of(
+                    createEmployeeDto("John", "Doe", 10, 1L),
+                    createEmployeeDto("Jane", "Smith", 5, 2L)
+            );
+
+            given(employeeService.getAllEmployees()).willReturn(mockEmployees);
+
+            List<EmployeeDto> employees = employeeController.getAllEmployees();
+
+            assertThat(employees).hasSize(2);
+            assertThat(employees).isEqualTo(mockEmployees);
+
+            verify(employeeService).getAllEmployees();
+        }
+    }
+
 
     @Nested
     class GetEmployeeTests {

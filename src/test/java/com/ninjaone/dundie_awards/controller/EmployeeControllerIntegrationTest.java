@@ -3,8 +3,12 @@ package com.ninjaone.dundie_awards.controller;
 import static com.jayway.jsonpath.JsonPath.read;
 import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeJson;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -110,6 +114,23 @@ public class EmployeeControllerIntegrationTest {
         }
 
     }
+    
+    @Nested
+    class GetAllEmployeesTests {
+
+    	@Test
+    	public void shouldGetAllEmployees() throws Exception {
+    	    mockMvc.perform(get("/employees"))
+    	            .andExpect(status().isOk())
+    	            .andExpect(jsonPath("$.length()").value(greaterThan(0))) // Ensure there is at least one employee
+    	            .andExpect(jsonPath("$[0].firstName", not(emptyOrNullString()))) // Validate structure for the first employee
+    	            .andExpect(jsonPath("$[0].lastName", not(emptyOrNullString())))
+    	            .andExpect(jsonPath("$[0].dundieAwards", greaterThanOrEqualTo(0))) // Ensure dundieAwards is non-negative
+    	            .andExpect(jsonPath("$[0].organizationId", greaterThan(0))); // Ensure organizationId is valid
+    	}
+
+    }
+
 
     @Nested
     class GetEmployeeTests {

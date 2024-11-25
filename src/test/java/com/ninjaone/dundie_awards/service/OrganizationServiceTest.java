@@ -17,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.ninjaone.dundie_awards.model.Organization;
 import com.ninjaone.dundie_awards.repository.OrganizationRepository;
+import com.ninjaone.dundie_awards.service.impl.OrganizationServiceImpl;
 
 class OrganizationServiceTest {
 
@@ -24,7 +25,7 @@ class OrganizationServiceTest {
     private OrganizationRepository organizationRepository;
 
     @InjectMocks
-    private OrganizationService organizationService;
+    private OrganizationServiceImpl organizationService;
 
     @BeforeEach
     void setup() {

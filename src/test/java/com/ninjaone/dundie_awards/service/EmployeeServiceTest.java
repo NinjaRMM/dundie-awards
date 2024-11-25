@@ -23,6 +23,8 @@ import com.ninjaone.dundie_awards.dto.EmployeeUpdateRequestDto;
 import com.ninjaone.dundie_awards.model.Employee;
 import com.ninjaone.dundie_awards.model.Organization;
 import com.ninjaone.dundie_awards.repository.EmployeeRepository;
+import com.ninjaone.dundie_awards.service.impl.EmployeeServiceImpl;
+import com.ninjaone.dundie_awards.service.impl.OrganizationServiceImpl;
 
 class EmployeeServiceTest {
 
@@ -30,10 +32,10 @@ class EmployeeServiceTest {
     private EmployeeRepository employeeRepository;
 
     @Mock
-    private OrganizationService organizationService;
+    private OrganizationServiceImpl organizationService;
 
     @InjectMocks
-    private EmployeeService employeeService;
+    private EmployeeServiceImpl employeeService;
 
     @BeforeEach
     void setup() {

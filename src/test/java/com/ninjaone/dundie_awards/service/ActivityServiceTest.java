@@ -15,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 import com.ninjaone.dundie_awards.dto.ActivityDto;
 import com.ninjaone.dundie_awards.model.Activity;
 import com.ninjaone.dundie_awards.repository.ActivityRepository;
+import com.ninjaone.dundie_awards.service.impl.ActivityServiceImpl;
 
 class ActivityServiceTest {
 
@@ -22,7 +23,7 @@ class ActivityServiceTest {
     private ActivityRepository activityRepository;
 
     @InjectMocks
-    private ActivityService activityService;
+    private ActivityServiceImpl activityService;
 
     @BeforeEach
     void setup() {
