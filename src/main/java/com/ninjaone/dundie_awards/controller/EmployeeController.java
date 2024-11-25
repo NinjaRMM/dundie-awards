@@ -15,14 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ninjaone.dundie_awards.AwardsCache;
-import com.ninjaone.dundie_awards.MessageBroker;
-import com.ninjaone.dundie_awards.model.Employee;
-import com.ninjaone.dundie_awards.repository.ActivityRepository;
-import com.ninjaone.dundie_awards.repository.EmployeeRepository;
+import com.ninjaone.dundie_awards.dto.EmployeeDto;
+import com.ninjaone.dundie_awards.dto.EmployeeUpdateRequestDto;
 import com.ninjaone.dundie_awards.service.EmployeeService;
 
-import lombok.AllArgsConstructor;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -33,24 +30,24 @@ public class EmployeeController {
 	private final EmployeeService employeeService;
 
 	@GetMapping
-	public List<Employee> getAllEmployees() {
+	public List<EmployeeDto> getAllEmployees() {
 		return employeeService.getAllEmployees();
 	}
 	
 	@GetMapping("/{id}")
-	public Employee getEmployeeById(@PathVariable("id") long id) {
+	public EmployeeDto getEmployeeById(@PathVariable("id") long id) {
 		return employeeService.getEmployee(id);
 	}
 
 	@PostMapping
 	@ResponseStatus(CREATED)
-	public Employee createEmployee(@RequestBody Employee employee) {
+	public EmployeeDto createEmployee(@Valid @RequestBody EmployeeDto employee) {
 		return employeeService.createEmployee(employee);
 	}
 
 	@PutMapping("/{id}")
-	public Employee updateEmployee(@PathVariable("id") long id, @RequestBody Employee updateEmployeeRequest) {
-		return employeeService.updateEmployee(id, updateEmployeeRequest);
+	public EmployeeDto updateEmployee(@PathVariable("id") long id, @Valid @RequestBody EmployeeUpdateRequestDto updateRequest) {
+		return employeeService.updateEmployee(id, updateRequest);
 	}
 
 	@DeleteMapping("/{id}")

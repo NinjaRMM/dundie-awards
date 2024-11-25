@@ -4,10 +4,13 @@ import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.Exception
 import static java.util.Optional.ofNullable;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ninjaone.dundie_awards.dto.EmployeeDto;
+import com.ninjaone.dundie_awards.dto.EmployeeUpdateRequestDto;
 import com.ninjaone.dundie_awards.model.Employee;
 import com.ninjaone.dundie_awards.repository.EmployeeRepository;
 
@@ -22,35 +25,29 @@ public class EmployeeService {
 	private final EmployeeRepository employeeRepository;
     private final OrganizationService organizationService;
 
-    public List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
+    public List<EmployeeDto> getAllEmployees() {
+        return employeeRepository.findAll()
+                .stream()
+                .map(EmployeeDto::toDto)
+                .collect(Collectors.toList());
     }
 
-    public Employee getEmployee(long id) {
-    	return findEmployeeById(id);
+    public EmployeeDto getEmployee(long id) {
+        Employee employee = findEmployeeById(id);
+        return EmployeeDto.toDto(employee);
     }
 
-    public Employee createEmployee(Employee employee) {
+    public EmployeeDto createEmployee(EmployeeDto employeeDto) {
+    	Employee employee = employeeDto.toEntity();
     	 ofNullable(employee.getOrganization())
          	.ifPresent(organization -> organizationService.ensureValidOrganization(organization.getId()));
-		return employeeRepository.save(employee);
+    	return EmployeeDto.toDto(employeeRepository.save(employee));
     }
 
-    
-    public Employee updateEmployee(long id, Employee updateRequest) {
+    public EmployeeDto updateEmployee(long id, EmployeeUpdateRequestDto updateRequest) {
     	Employee existingEmployee = findEmployeeById(id);
-
-    	Employee updatedEmployee = existingEmployee.toBuilder()
-    	        .organization(
-	        		ofNullable(updateRequest.getOrganization())
-	        			.map(org -> organizationService.getValidOrganization(org.getId()))
-	        			.orElse(null))
-    	        .firstName(updateRequest.getFirstName())
-    	        .lastName(updateRequest.getLastName())
-    	        .dundieAwards(updateRequest.getDundieAwards())
-    	        .build();
-    	
-		return employeeRepository.save(updatedEmployee);
+    	Employee updatedEmployee = updateRequest.toEntity(existingEmployee, organizationService);
+        return EmployeeDto.toDto(employeeRepository.save(updatedEmployee));
     }
 
     public void deleteEmployee(long id) {

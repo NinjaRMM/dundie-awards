@@ -41,7 +41,7 @@ public class EmployeeControllerIntegrationTest {
                     .andExpect(jsonPath("firstName", is("Ryan")))
                     .andExpect(jsonPath("lastName", is("Howard")))
                     .andExpect(jsonPath("dundieAwards", is(0)))
-                    .andExpect(jsonPath("organization.id", is(1)));
+                    .andExpect(jsonPath("organizationId", is(1)));
         }
 
         @Test
@@ -76,25 +76,6 @@ public class EmployeeControllerIntegrationTest {
                     .andExpect(jsonPath("organization").doesNotExist());
         }
 
-        @Test
-        public void shouldReturnBadRequestForNullOrganizationId() throws Exception {
-            String employeeWithNullOrgId = """
-                {
-                  "firstName": "Ryan",
-                  "lastName": "Howard",
-                  "dundieAwards": 0,
-                  "organization": { "id": null }
-                }
-                """;
-
-            mockMvc.perform(
-                    post("/employees")
-                            .content(employeeWithNullOrgId)
-                            .contentType(APPLICATION_JSON))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.status", is(400)))
-                    .andExpect(jsonPath("$.detail", equalTo("The provided organization ID cannot be null.")));
-        }
     }
 
     @Nested
@@ -107,8 +88,8 @@ public class EmployeeControllerIntegrationTest {
                     .andExpect(jsonPath("firstName", is("John")))
                     .andExpect(jsonPath("lastName", is("Doe")))
                     .andExpect(jsonPath("dundieAwards",is(0)))
-                    .andExpect(jsonPath("organization.id", is(1)))
-                    .andExpect(jsonPath("organization.name", is("Pikashu")));
+                    .andExpect(jsonPath("organizationId", is(1)))
+                    .andExpect(jsonPath("organizationName", is("Pikashu")));
         }
 
         @Test
@@ -135,8 +116,8 @@ public class EmployeeControllerIntegrationTest {
                     .andExpect(jsonPath("firstName", is("Ryan")))
                     .andExpect(jsonPath("lastName", is("Howard")))
                     .andExpect(jsonPath("dundieAwards", is(5)))
-                    .andExpect(jsonPath("organization.id", is(1)))
-                    .andExpect(jsonPath("organization.name", is("Pikashu")));
+                    .andExpect(jsonPath("organizationId", is(1)))
+                    .andExpect(jsonPath("organizationName", is("Pikashu")));
         }
         
         @Test
@@ -171,25 +152,6 @@ public class EmployeeControllerIntegrationTest {
                     .andExpect(jsonPath("organization").doesNotExist());
         }
 
-        @Test
-        public void shouldReturnBadRequestForNullOrganizationIdOnUpdate() throws Exception {
-            String updatedEmployeeWithNullOrgId = """
-                {
-                  "firstName": "Ryan",
-                  "lastName": "Howard",
-                  "dundieAwards": 5,
-                  "organization": { "id": null }
-                }
-                """;
-
-            mockMvc.perform(
-                    put("/employees/{id}", 1)
-                            .content(updatedEmployeeWithNullOrgId)
-                            .contentType(APPLICATION_JSON))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.status", is(400)))
-                    .andExpect(jsonPath("$.detail", equalTo("The provided organization ID cannot be null.")));
-        }
     }
 
     @Nested

@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.ninjaone.dundie_awards.AwardsCache;
 import com.ninjaone.dundie_awards.MessageBroker;
-import com.ninjaone.dundie_awards.repository.ActivityRepository;
-import com.ninjaone.dundie_awards.repository.EmployeeRepository;
+import com.ninjaone.dundie_awards.service.ActivityService;
+import com.ninjaone.dundie_awards.service.EmployeeService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,8 +19,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class IndexController {
 
-	private final EmployeeRepository employeeRepository;
-    private final ActivityRepository activityRepository;
+	private final EmployeeService employeeService;
+    private final ActivityService activityService;
     private final MessageBroker messageBroker;
     private final AwardsCache awardsCache;
     
@@ -29,8 +29,8 @@ public class IndexController {
 
     @GetMapping
     public String getIndex(Model model) {
-        model.addAttribute("employees", employeeRepository.findAll());
-        model.addAttribute("activities", activityRepository.findAll());
+        model.addAttribute("employees", employeeService.getAllEmployees());
+        model.addAttribute("activities", activityService.getAllActivities());
         model.addAttribute("queueMessages", messageBroker.getMessages());
         model.addAttribute("totalDundieAwards", awardsCache.getTotalAwards());
         model.addAttribute("isDev", "dev".equalsIgnoreCase(activeProfile));

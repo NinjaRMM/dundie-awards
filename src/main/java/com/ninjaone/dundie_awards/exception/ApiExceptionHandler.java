@@ -18,6 +18,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	
+	/*
+	 * Service layer exceptions mapped to Http status errors exceptions
+	 */
 	@ExceptionHandler(IllegalArgumentException.class)
     public ErrorResponseException handleIllegalArgumentException(IllegalArgumentException ex) {
         return notValidException.apply(ex.getMessage());

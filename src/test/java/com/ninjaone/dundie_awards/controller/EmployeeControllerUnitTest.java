@@ -1,9 +1,9 @@
 package com.ninjaone.dundie_awards.controller;
 
 import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.employeeNotFoundException;
-import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.notValidException;
 import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.organizationNotValidException;
-import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployee;
+import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeDto;
+import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeUpdateRequestDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.BDDMockito.given;
@@ -18,9 +18,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.ErrorResponseException;
 
-import com.ninjaone.dundie_awards.model.Employee;
+import com.ninjaone.dundie_awards.dto.EmployeeDto;
+import com.ninjaone.dundie_awards.dto.EmployeeUpdateRequestDto;
 import com.ninjaone.dundie_awards.service.EmployeeService;
 
 class EmployeeControllerUnitTest {
@@ -41,52 +41,36 @@ class EmployeeControllerUnitTest {
 
         @Test
         void shouldCreateEmployee() {
-            Employee employee = createEmployee("Ryan", "Howard", 0, 1L);
-            given(employeeService.createEmployee(employee)).willReturn(employee);
+            EmployeeDto employeeDto = createEmployeeDto("Ryan", "Howard", 0, 1L);
+            given(employeeService.createEmployee(employeeDto)).willReturn(employeeDto);
 
-            Employee createdEmployee = employeeController.createEmployee(employee);
+            EmployeeDto createdEmployee = employeeController.createEmployee(employeeDto);
 
-            assertThat(createdEmployee).isEqualTo(employee);
-            verify(employeeService).createEmployee(employee);
+            assertThat(createdEmployee).isEqualTo(employeeDto);
+            verify(employeeService).createEmployee(employeeDto);
         }
-        
+
         @Test
         void shouldCreateEmployeeWithNullOrganization() {
-            Employee employee = createEmployee("Ryan", "Howard", 0, 0L);
-            employee.setOrganization(null);
-            given(employeeService.createEmployee(employee)).willReturn(employee);
+            EmployeeDto employeeDto = createEmployeeDto("Ryan", "Howard", 0, null);
+            given(employeeService.createEmployee(employeeDto)).willReturn(employeeDto);
 
-            Employee createdEmployee = employeeController.createEmployee(employee);
+            EmployeeDto createdEmployee = employeeController.createEmployee(employeeDto);
 
-            assertThat(createdEmployee.getOrganization()).isNull();
-            verify(employeeService).createEmployee(employee);
-        }
-
-        @Test
-        void shouldReturnBadRequestForNullOrganizationId() {
-            Employee employeeWithNullOrgId = createEmployee("Ryan", "Howard", 0, 0L);
-            employeeWithNullOrgId.setOrganization(employeeWithNullOrgId.getOrganization().toBuilder().id(null).build());
-
-            given(employeeService.createEmployee(employeeWithNullOrgId))
-                    .willThrow(notValidException.apply("The provided organization ID cannot be null."));
-
-            ErrorResponseException invalidOrganizationException = catchThrowableOfType(
-                    () -> employeeController.createEmployee(employeeWithNullOrgId),
-                    ErrorResponseException.class
-            );
-
-            assertThat(invalidOrganizationException.getBody().getDetail()).isEqualTo("The provided organization ID cannot be null.");
+            assertThat(createdEmployee.organizationId()).isNull();
+            verify(employeeService).createEmployee(employeeDto);
         }
 
         @Test
         void shouldReturnBadRequestForInvalidOrganizationId() {
-            Employee invalidEmployee = createEmployee("Ryan", "Howard", 0, 999L);
+            EmployeeDto invalidEmployee = createEmployeeDto("Ryan", "Howard", 0, 999L);
+
             given(employeeService.createEmployee(invalidEmployee))
-                    .willThrow(organizationNotValidException.apply(invalidEmployee.getOrganization().getId()));
+                    .willThrow(organizationNotValidException.apply(invalidEmployee.organizationId()));
 
             IllegalArgumentException organizationNotValidException = catchThrowableOfType(
-                () -> employeeController.createEmployee(invalidEmployee),
-                IllegalArgumentException.class
+                    () -> employeeController.createEmployee(invalidEmployee),
+                    IllegalArgumentException.class
             );
 
             assertThat(organizationNotValidException.getMessage()).isEqualTo("Invalid organization with id: 999. Organization not found");
@@ -98,12 +82,12 @@ class EmployeeControllerUnitTest {
 
         @Test
         void shouldGetEmployeeById() {
-            Employee employee = createEmployee("John", "Doe", 0, 1L);
-            given(employeeService.getEmployee(1L)).willReturn(employee);
+            EmployeeDto employeeDto = createEmployeeDto("John", "Doe", 0, 1L);
+            given(employeeService.getEmployee(1L)).willReturn(employeeDto);
 
-            Employee foundEmployee = employeeController.getEmployeeById(1L);
+            EmployeeDto foundEmployee = employeeController.getEmployeeById(1L);
 
-            assertThat(foundEmployee).isEqualTo(employee);
+            assertThat(foundEmployee).isEqualTo(employeeDto);
             verify(employeeService).getEmployee(1L);
         }
 
@@ -113,7 +97,7 @@ class EmployeeControllerUnitTest {
                     .willThrow(employeeNotFoundException.apply(999L));
 
             NoSuchElementException employeeNotFoundException = catchThrowableOfType(
-                () -> employeeController.getEmployeeById(999L),
+                    () -> employeeController.getEmployeeById(999L),
                 NoSuchElementException.class
             );
 
@@ -126,60 +110,41 @@ class EmployeeControllerUnitTest {
 
         @Test
         void shouldUpdateEmployee() {
-            Employee updatedDetails = createEmployee("Ryan", "Howard", 5, 1L);
-            Employee updatedEmployee = createEmployee("Ryan", "Howard", 5, 1L); 
-            given(employeeService.updateEmployee(1L, updatedDetails)).willReturn(updatedEmployee);
+            EmployeeUpdateRequestDto updateRequest = createEmployeeUpdateRequestDto("Ryan", "Howard", 5, 1L);
+            EmployeeDto updatedEmployee = createEmployeeDto("Ryan", "Howard", 5, 1L);
+            given(employeeService.updateEmployee(1L, updateRequest)).willReturn(updatedEmployee);
 
-            Employee result = employeeController.updateEmployee(1L, updatedDetails);
+            EmployeeDto result = employeeController.updateEmployee(1L, updateRequest);
 
-            assertThat(result.getDundieAwards()).isEqualTo(5);
-            verify(employeeService).updateEmployee(1L, updatedDetails);
+            assertThat(result).isEqualTo(updatedEmployee);
+            verify(employeeService).updateEmployee(1L, updateRequest);
         }
-        
+
         @Test
         void shouldUpdateEmployeeWithNullOrganization() {
-            Employee employeeToUpdate = createEmployee("Ryan", "Howard", 5, 0L);
-            employeeToUpdate.setOrganization(null);
-            Employee updatedEmployee = createEmployee("Ryan", "Howard", 5, 0L);
-            updatedEmployee.setOrganization(null);
+            EmployeeUpdateRequestDto updateRequest = createEmployeeUpdateRequestDto("Ryan", "Howard", 5, null);
+            EmployeeDto updatedEmployee = createEmployeeDto("Ryan", "Howard", 5, null);
+            given(employeeService.updateEmployee(1L, updateRequest)).willReturn(updatedEmployee);
 
-            given(employeeService.updateEmployee(1L, employeeToUpdate)).willReturn(updatedEmployee);
+            EmployeeDto result = employeeController.updateEmployee(1L, updateRequest);
 
-            Employee result = employeeController.updateEmployee(1L, employeeToUpdate);
-
-            assertThat(result.getOrganization()).isNull();
-            verify(employeeService).updateEmployee(1L, employeeToUpdate);
+            assertThat(result.organizationId()).isNull();
+            verify(employeeService).updateEmployee(1L, updateRequest);
         }
-
 
         @Test
         void shouldReturnBadRequestForInvalidOrganizationId() {
-            Employee invalidDetails = createEmployee("Ryan", "Howard", 5, 999L);
-            given(employeeService.updateEmployee(1L, invalidDetails))
+            EmployeeUpdateRequestDto invalidRequest = createEmployeeUpdateRequestDto("Ryan", "Howard", 5, 999L);
+
+            given(employeeService.updateEmployee(1L, invalidRequest))
                     .willThrow(organizationNotValidException.apply(999L));
 
             IllegalArgumentException organizationNotValidException = catchThrowableOfType(
-                () -> employeeController.updateEmployee(1L, invalidDetails),
-                IllegalArgumentException.class
-            );
+                    () -> employeeController.updateEmployee(1L, invalidRequest),
+                    IllegalArgumentException.class
+                );
 
             assertThat(organizationNotValidException.getMessage()).isEqualTo("Invalid organization with id: 999. Organization not found");
-        }
-        
-        @Test
-        void shouldReturnBadRequestForNullOrganizationIdOnUpdate() {
-            Employee employeeWithNullOrgId = createEmployee("Ryan", "Howard", 5, 0L);
-            employeeWithNullOrgId.setOrganization(employeeWithNullOrgId.getOrganization().toBuilder().id(null).build());
-
-            given(employeeService.updateEmployee(1L, employeeWithNullOrgId))
-                    .willThrow(notValidException.apply("The provided organization ID cannot be null."));
-
-            ErrorResponseException invalidOrganizationException = catchThrowableOfType(
-                    () -> employeeController.updateEmployee(1L, employeeWithNullOrgId),
-                    ErrorResponseException.class
-            );
-
-            assertThat(invalidOrganizationException.getBody().getDetail()).isEqualTo("The provided organization ID cannot be null.");
         }
     }
 
@@ -194,10 +159,10 @@ class EmployeeControllerUnitTest {
 
         @Test
         void shouldReturnNotFoundWhenDeletingNonExistingEmployee() {
-        	doThrow(employeeNotFoundException.apply(999L)).when(employeeService).deleteEmployee(999L);
+            doThrow(employeeNotFoundException.apply(999L)).when(employeeService).deleteEmployee(999L);
 
         	NoSuchElementException employeeNotFoundException = catchThrowableOfType(
-                () -> employeeController.deleteEmployee(999L),
+                    () -> employeeController.deleteEmployee(999L),
                 NoSuchElementException.class
             );
 
