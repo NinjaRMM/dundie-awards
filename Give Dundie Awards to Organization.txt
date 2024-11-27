@@ -1,47 +1,3 @@
-## Employee directory organization
-
-This is an application for managing employees of a company. Employees belong to organizations within the company.
-
-As recognition, employees can receive Dundie Awards.
-
-* A `Dundie Award` is in reference to the TV show [The Office](https://en.wikipedia.org/wiki/The_Dundies) in which the main character hands out awards to his colleagues. For our purposes, it's a generic award.
-
-## Instructions
-
-In preparation for the upcoming call with NinjaOne, `clone` this repo and run it locally. If everything runs successfully, you will see the following page in your browser.
-
-![success](success.png)
-
-Become familiar with the application and it's characteristics. Use your favorite HTTP Client (like [Postman](https://www.postman.com/)) to exercise the endpoints and step through the code to help you get to know the application. 
-
-In the call, we will introduce new code to the application, and you will comment on issues with the endpoint. Please be ready to share your screen in the call with us with the application ready to run. 
-
-**Bonus:** Spot any issues or potential improvements you notice in the application while you're familiarizing yourself and make note of them for our call. We would love to see your input in how to make this application better.
-
-## Give Dundie Awards to Organization
-
-
-### Features
-
-**Implement the Endpoint**  
-Create the endpoint "/give-dundie-awards/{organizationId}". This endpoint should increase the number of Dundie awards for each employee in the specified organization by 1. Ensure that any related updates are also handled appropriately.  
-
-**Finish Message Broker Implementation**  
-Complete the implementation of the Message Broker by either introducing a library or creating a basic publish/subscribe mechanism.  
-
-**Asynchronous Activity Creation**  
-Implement the creation of an Activity when awards are added to an organization. This should be done asynchronously by subscribing to notifications from the Message Broker.  
-
-**Implement Rollback Mechanism**  
-Develop a mechanism to roll back the award distribution if the Activity creation fails.  
-
-### Sequence Diagram
-
-![Give Dundie Awards to Organization](Give Dundie Awards to Organization.svg)
-
-### Sequence Diagram source
-
-```
 title Give Dundie Awards to Organization
 
 
@@ -178,7 +134,3 @@ AwardService->AwardCache: decreaseAwards(totalAwards)
 MessageBroker-->StreamProcessor: process(AWARD_ORGANIZATION_ROLLBACK_FAILURE_EVENT[UUID, instant])
 StreamProcessor->AwardService: handleAwardOrganizationRollbackFailure(AWARD_ORGANIZATION_ROLLBACK_FAILURE_EVENT)
 AwardService->FailureProcessService:logFailureProcess(UUID)
-
-```
-
-Source: [https://sequencediagram.org/](https://sequencediagram.org/)
