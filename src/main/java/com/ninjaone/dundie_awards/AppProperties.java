@@ -8,6 +8,8 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties("app")
 public record AppProperties(
-        @Min(1) @NotNull int batchSize
+        @Min(1) @NotNull int batchSize,
+        @Min(7000) @NotNull int messageProcessingIntervalMs
+        
 ) {
 }

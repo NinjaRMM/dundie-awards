@@ -86,6 +86,8 @@
               }
           }).done((data) => {
               $('#queueMessages').html(data);
+          }).always(() => {
+              setTimeout(getMessages, 1000);
           });
       };
 

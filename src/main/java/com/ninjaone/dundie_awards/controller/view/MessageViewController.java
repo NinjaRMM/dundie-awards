@@ -18,7 +18,8 @@ public class MessageViewController {
 
     @GetMapping("/view")
     public String getMessages(Model model) {
-        model.addAttribute("queueMessages", messageBroker.getMessages());
+    	messageBroker.getUnprocessedEvents();
+        model.addAttribute("queueMessages", messageBroker.getUnprocessedEvents());
         return "messages :: content";
     }
 

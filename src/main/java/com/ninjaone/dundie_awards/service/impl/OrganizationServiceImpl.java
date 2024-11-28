@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.ninjaone.dundie_awards.dto.OrganizationDto;
+import com.ninjaone.dundie_awards.event.Event;
 import com.ninjaone.dundie_awards.model.Organization;
 import com.ninjaone.dundie_awards.repository.OrganizationRepository;
 import com.ninjaone.dundie_awards.service.OrganizationService;
@@ -88,5 +89,23 @@ public class OrganizationServiceImpl implements OrganizationService {
                 });
         log.debug("findOrganizationById - Found organization with ID: {}: {}", id, organization);
         return organization;
+    }
+    
+    @Override
+    public void handleUnblockOrganizationSuccessEvent(Event event) {
+        log.info("UUID: {} - handleUnblockOrganizationSuccessEvent - Handle event: {}", event.uuid(), event.toJson());
+        log.info("UUID: {} - handleUnblockOrganizationSuccessEvent - Handled event: {}", event.uuid(), event.toJson());
+    }
+
+    @Override
+    public void handleUnblockOrganizationRetryEvent(Event event) {
+        log.info("UUID: {} - handleUnblockOrganizationRetryEvent - Handle event: {}", event.uuid(), event.toJson());
+        log.info("UUID: {} - handleUnblockOrganizationRetryEvent - Handled event: {}", event.uuid(), event.toJson());
+    }
+
+    @Override
+    public void handleUnblockOrganizationFailureEvent(Event event) {
+        log.info("UUID: {} - handleUnblockOrganizationFailureEvent - Handle event: {}", event.uuid(), event.toJson());
+        log.info("UUID: {} - handleUnblockOrganizationFailureEvent - Handled event: {}", event.uuid(), event.toJson());
     }
 }

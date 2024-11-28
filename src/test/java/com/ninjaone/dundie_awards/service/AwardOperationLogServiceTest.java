@@ -3,6 +3,7 @@ package com.ninjaone.dundie_awards.service;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +37,7 @@ class AwardOperationLogServiceTest {
             UUID uuid = UUID.randomUUID();
             String rollbackData = "1,8|2,9|3,2";
 
-            awardOperationLogService.createAwardOperationLog(uuid, rollbackData);
+            awardOperationLogService.createAwardOperationLog(uuid,Instant.now(), rollbackData);
 
             then(awardOperationLogRepository).should(times(1))
                     .save(org.mockito.ArgumentMatchers.argThat(log -> 

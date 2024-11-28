@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.ninjaone.dundie_awards.dto.ActivityDto;
+import com.ninjaone.dundie_awards.event.Event;
 import com.ninjaone.dundie_awards.repository.ActivityRepository;
 import com.ninjaone.dundie_awards.service.ActivityService;
 
@@ -27,5 +28,17 @@ public class ActivityServiceImpl implements ActivityService {
                 .toList();
         log.info("getAllActivities - Fetched {} activities.", activities.size());
         return activities;
+    }
+
+    @Override
+    public void handleAwardOrganizationSuccessEvent(Event event) {
+        log.info("UUID: {} - handleAwardOrganizationSuccessEvent - Handle event: {}", event.uuid(), event.toJson());
+        log.info("UUID: {} - handleAwardOrganizationSuccessEvent - Handled event: {}", event.uuid(), event.toJson());
+    }
+
+    @Override
+    public void handleSaveActivityAwardOrganizationRetryEvent(Event event) {
+        log.info("UUID: {} - handleSaveActivityAwardOrganizationRetryEvent - Handle event: {}", event.uuid(), event.toJson());
+        log.info("UUID: {} - handleSaveActivityAwardOrganizationRetryEvent - Handled event: {}", event.uuid(), event.toJson());
     }
 }

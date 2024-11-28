@@ -9,14 +9,18 @@
             <table class="table table-striped">
                 <thead class="thead-dark">
                 <tr>
+                    <th>UUID</th>
                     <th>Occurred At</th>
+                    <th>Type</th>
                     <th>Event</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="activity : ${queueMessages}">
-                    <th th:text="${#temporals.format(activity.occurredAt, 'MEDIUM')}"></th>
-                    <th th:text="${activity.event}"></th>
+                <tr th:each="event : ${queueMessages}">
+                    <th th:text="${event.uuid}"></th>
+                    <th th:text="${#temporals.format(event.occurredAt, 'MEDIUM')}"></th>
+                    <th th:text="${event.eventType}"></th>
+                    <th th:text="${event.toJson}"></th>
                 </tr>
                 </tbody>
             </table>

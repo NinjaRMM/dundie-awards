@@ -2,34 +2,35 @@ package com.ninjaone.dundie_awards;
 
 import static com.ninjaone.dundie_awards.model.Organization.GARFIELD;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.LongStream;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import com.ninjaone.dundie_awards.event.Event;
+import com.ninjaone.dundie_awards.model.Activity;
 import com.ninjaone.dundie_awards.model.Employee;
 import com.ninjaone.dundie_awards.model.Organization;
 import com.ninjaone.dundie_awards.repository.EmployeeRepository;
 import com.ninjaone.dundie_awards.repository.OrganizationRepository;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class DataLoader implements CommandLineRunner {
 
     private final EmployeeRepository employeeRepository;
     private final OrganizationRepository organizationRepository;
     private final AwardsCache awardsCache;
-
-    public DataLoader(EmployeeRepository employeeRepository, OrganizationRepository organizationRepository, AwardsCache awardsCache) {
-        this.awardsCache = awardsCache;
-        this.employeeRepository = employeeRepository;
-        this.organizationRepository = organizationRepository;
-    }
+    private final MessageBroker messageBroker;
 
     @Override
     public void run(String... args) {
@@ -71,6 +72,9 @@ public class DataLoader implements CommandLineRunner {
         //load to sample
         //can't keep it during development cos each restart takes too long
 //        loadThreeMilionsRecordsToGarfieldOrganization();
+        
+        //load to sample
+        publishSampleEvents();
     }
     
 
@@ -105,5 +109,26 @@ public class DataLoader implements CommandLineRunner {
         long end = System.currentTimeMillis();
         log.info("Completed loading employees to Garfield Organization in {} seconds", String.format("%.2f", (end - start) / 1000.0));
     
+    }
+    
+    private void publishSampleEvents() {
+        log.info("Publishing sample events to MessageBroker...");
+
+        UUID uuid = UUID.randomUUID();
+        Instant now = Instant.now();
+
+        // Create and publish an event of each type
+        messageBroker.sendMessage(Event.createAwardOrganizationSuccessEvent(uuid, now, 100, 50));
+        messageBroker.sendMessage(Event.createSaveActivityAwardOrganizationSuccessEvent(uuid, now, new Activity()));
+        messageBroker.sendMessage(Event.createSaveActivityAwardOrganizationRetryEvent(uuid, now, 3, new Activity()));
+        messageBroker.sendMessage(Event.createSaveActivityAwardOrganizationFailureEvent(uuid, now, new Activity()));
+        messageBroker.sendMessage(Event.createUnblockOrganizationSuccessEvent(uuid, now, new Organization()));
+        messageBroker.sendMessage(Event.createUnblockOrganizationRetryEvent(uuid, now, 2, new Organization()));
+        messageBroker.sendMessage(Event.createUnblockOrganizationFailureEvent(uuid, now, new Organization()));
+        messageBroker.sendMessage(Event.createAwardOrganizationRollbackSuccessEvent(uuid, now, 75, 25));
+        messageBroker.sendMessage(Event.createAwardOrganizationRollbackRetryEvent(uuid, now, 1));
+        messageBroker.sendMessage(Event.createAwardOrganizationRollbackFailureEvent(uuid, now));
+
+        log.info("Sample events published successfully.");
     }
 }

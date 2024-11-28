@@ -20,12 +20,12 @@ public class AwardOperationLogServiceImpl implements AwardOperationLogService {
     private final AwardOperationLogRepository awardOperationLogRepository;
 
     @Override
-	public void createAwardOperationLog(UUID uuid, String rollbackData) {
+	public void createAwardOperationLog(UUID uuid,Instant occurredAt, String rollbackData) {
         log.info("UUID: {} - createAwardOperationLog - Creating AwardOperationLog", uuid);
         awardOperationLogRepository.save(
         		AwardOperationLog.builder()
         		.uuid(uuid.toString())
-        		.occurredAt(Instant.now())
+        		.occurredAt(occurredAt)
         		.rollbackData(rollbackData)
         		.build());
         log.info("UUID: {} - createAwardOperationLog - Created createAwardOperationLog", uuid);

@@ -28,3 +28,4 @@ spring:
     locale-resolver: fixed
 app:
   batchSize: 1000
+  messageProcessingIntervalMs: 7000
