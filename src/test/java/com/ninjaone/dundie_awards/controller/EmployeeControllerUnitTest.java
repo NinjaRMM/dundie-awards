@@ -1,8 +1,8 @@
 package com.ninjaone.dundie_awards.controller;
 
+import static com.ninjaone.dundie_awards.TestEntityFactory.createEmployeeDto;
+import static com.ninjaone.dundie_awards.TestEntityFactory.createEmployeeUpdateRequestDto;
 import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.employeeNotFoundException;
-import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeDto;
-import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeUpdateRequestDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.BDDMockito.given;

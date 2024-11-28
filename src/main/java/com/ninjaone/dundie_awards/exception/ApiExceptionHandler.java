@@ -8,10 +8,12 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,11 +21,13 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.Error;
@@ -69,6 +73,39 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 	    problemDetail.setProperty("errors", errors);
 	    return new ResponseEntity<>(problemDetail, headers, BAD_REQUEST);
 	}
+	
+	@Override
+	protected ResponseEntity<Object> handleHandlerMethodValidationException(
+	        HandlerMethodValidationException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+		List<ExceptionUtil.Error> errors = new ArrayList<>();
+
+		for (ParameterValidationResult result : ex.getAllValidationResults()) {
+			String field = result.getMethodParameter().getParameterName();
+		    if (field == null) {
+		        field = result.getMethodParameter().toString();
+		    }
+
+		    for (Object resolvableError : result.getResolvableErrors()) {
+		        String message = ((DefaultMessageSourceResolvable) resolvableError).getDefaultMessage();
+
+		        ExceptionUtil.Error error = ExceptionUtil.Error.builder()
+		                .field(field)
+		                .message(message)
+		                .build();
+
+		        errors.add(error);
+		    }
+		}
+
+
+
+	    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failure");
+	    problemDetail.setProperty("errors", errors);
+
+	    return handleExceptionInternal(ex, problemDetail, headers, status, request);
+	}
+
 	
 	/*
 	 * Persistence layer exceptions mapped to Http status errors exceptions

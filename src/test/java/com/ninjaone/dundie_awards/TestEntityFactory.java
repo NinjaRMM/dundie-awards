@@ -1,4 +1,4 @@
-package com.ninjaone.dundie_awards.util;
+package com.ninjaone.dundie_awards;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ninjaone.dundie_awards.dto.EmployeeDto;
@@ -19,7 +19,7 @@ public class TestEntityFactory {
         employee.setFirstName(firstName);
         employee.setLastName(lastName);
         employee.setDundieAwards(dundieAwards);
-        employee.setOrganization(Organization.builder().id(organizationId).build());
+        employee.setOrganization(Organization.builder().id(organizationId).blocked(false).build());
         return employee;
     }
     

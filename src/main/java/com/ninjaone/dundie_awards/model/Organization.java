@@ -33,6 +33,9 @@ import lombok.ToString;
 @Entity
 @Table(name = "organizations")
 public class Organization {
+	
+	//If we have Squanchy and Pokemon cats, then this one cannot be missing:
+	public final static Organization GARFIELD = Organization.builder().name("Garfield").blocked(false).blockedBy(null).build();
 
 	@EqualsAndHashCode.Include
 	@Id
@@ -49,5 +52,11 @@ public class Organization {
 	@Fetch(value = FetchMode.SELECT)
 	@JsonIgnore
 	private List<Employee> employees;
+	
+	@Column(name = "blocked")
+	private boolean blocked;
+	
+	@Column(name = "blockedBy")
+	private String blockedBy;
 
 }

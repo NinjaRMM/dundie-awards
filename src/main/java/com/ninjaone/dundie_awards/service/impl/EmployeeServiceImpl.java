@@ -1,8 +1,10 @@
 package com.ninjaone.dundie_awards.service.impl;
 
 import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.employeeNotFoundException;
+import static com.ninjaone.dundie_awards.model.Organization.GARFIELD;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -29,12 +31,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
 	public List<EmployeeDto> getAllEmployees() {
-        log.info("getAllEmployees - Fetching all employees.");
-        List<EmployeeDto> employees = employeeRepository.findAll()
+        log.info("getAllEmployees - Fetching all employees. Except from Garfield organization.");
+        List<EmployeeDto> employees = employeeRepository.findAllByOrganizationIdNot(GARFIELD.getId())
                 .stream()
                 .map(EmployeeDto::toDto)
                 .collect(Collectors.toList());
-        log.info("getAllEmployees - Fetched {} employees.", employees.size());
+        log.info("getAllEmployees - Fetched {} employees.  Except from Garfield organization.", employees.size());
         return employees;
     }
 
@@ -45,6 +47,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         EmployeeDto employeeDto = EmployeeDto.toDto(employee);
         log.info("getEmployee - Fetched employee with ID: {}: {}", id, employeeDto);
         return employeeDto;
+    }
+    
+    @Override
+    public List<Long> getEmployeesIdsByOrganization(UUID uuid, long organizationId) {
+        log.info("UUID: {} - getEmployeesIdsByOrganization - Fetching employee IDs for Organization ID: {}", uuid, organizationId);
+        List<Long> employeeIds = employeeRepository.findEmployeeIdsByOrganizationId(organizationId);
+        log.info("UUID: {} - getEmployeesIdsByOrganization - Found {} employee IDs for Organization ID: {}", uuid, employeeIds.size(), organizationId);
+        return employeeIds;
     }
 
     @Override
@@ -66,6 +76,22 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public int addDundieAwardToEmployees(UUID uuid, Long organizationId) {
+    	log.info("UUID: {} - addDundieAwardToEmployees - Adding awards to organization with ID: {}", uuid, organizationId);
+    	int updatedRecords = employeeRepository.increaseAwardsToEmployeesNative(organizationId);
+    	log.info("UUID: {} - addDundieAwardToEmployees - Successfully updated {} employees", uuid, updatedRecords);
+    	return updatedRecords;
+    }
+    
+    @Override
+	public String fetchEmployeeRollbackData(UUID uuid, Long organizationId) {
+    	log.info("UUID: {} - fetchEmployeeRollbackData - Fetching award changes to organization with ID: {}", uuid, organizationId);
+    	String rollbackData = employeeRepository.findConcatenatedEmployeeDataByOrganizationIdNative(organizationId);
+    	log.info("UUID: {} - fetchEmployeeRollbackData - Successfully fetched", uuid);
+    	return rollbackData;
+	}
+    
+    @Override
 	public void deleteEmployee(long id) {
         log.info("deleteEmployee - Deleting employee with ID: {}", id);
         employeeRepository.delete(findEmployeeById(id));
@@ -80,4 +106,5 @@ public class EmployeeServiceImpl implements EmployeeService {
                     return employeeNotFoundException.apply(id);
                 });
     }
+
 }

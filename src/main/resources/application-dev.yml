@@ -26,3 +26,5 @@ spring:
         period: 0
     locale: en_US
     locale-resolver: fixed
+app:
+  batchSize: 1000

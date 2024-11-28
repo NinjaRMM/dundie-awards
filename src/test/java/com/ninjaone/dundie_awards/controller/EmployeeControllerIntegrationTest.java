@@ -1,7 +1,7 @@
 package com.ninjaone.dundie_awards.controller;
 
 import static com.jayway.jsonpath.JsonPath.read;
-import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeJson;
+import static com.ninjaone.dundie_awards.TestEntityFactory.createEmployeeJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.equalTo;

@@ -52,7 +52,10 @@ public record EmployeeDto(
                 .dundieAwards(dundieAwards)
                 .organization(
                 		ofNullable(organizationId)
-                        .map(id -> Organization.builder().id(id).build())
+                        .map(id -> Organization.builder()
+                        		.id(id)
+                        		.blocked(false)
+                        		.build())
                         .orElse(null)
                 )
                 .build();

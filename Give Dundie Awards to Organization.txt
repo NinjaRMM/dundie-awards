@@ -2,30 +2,48 @@ title Give Dundie Awards to Organization
 
 
 #CONTROLLER
+participant User
+participant AwardController
+participant OrganizationService
+participant AwardService
+participant EmployeeService
+
+
+participant AwardOperationLogService
+
+participant EmployeeRepository
+participant OrganizationRepository
+participant AwardCache
+participant MessageBroker
+participant StreamProcessor
+participant ActivityService
+participant ActivityRepository
+participant FailureProcessService
+participant AwardRepository
+
+
 User->AwardController: /give-dundie-awards/{organizationId}
 alt #a3001f Organization is valid
-AwardController->AwardController: Bean validate \n@ValidOrganizationId, \n@BlockedOrganizationId
+AwardController->AwardController: Bean validate \n@BlockedOrganizationId
 AwardController->OrganizationService: isBlocked(organizationId)\nexistsOrganization(organizationId)
     AwardController->AwardController: generate Request UUID
     AwardController->AwardService: giveDundieAwards(UUID,long organizationId)
-    AwardService->EmployeeService: getEmployeesIdsByOrganization(long organizationId)
-    EmployeeService->AwardService:List<long> ids
-    AwardService->AwardService:chunkIntoBatches(List<long>)
-    loop for each List<long> batch in batches
-        AwardService->EmployeeService: addDundieAwardToEmployees(batch)
-        EmployeeService->EmployeeRepository: increaseAwardsToEmployees(List<long>)
-        AwardService->AwardBatchLogService: saveAwardBatchLogs(UUID,List<long>)
-    end
-    AwardService->OrganizationService:blockOrganization(UUID,organizationId)
+    AwardService->EmployeeService:fetchEmployeeRollbackData(uuid, organizationId)
+    EmployeeService->AwardService:String rollbackData
+AwardService->AwardOperationLogService:createAwardOperationLog(uuid, rollbackData)
+AwardService->EmployeeService:addDundieAwardToEmployees(uuid, organizationId)
+EmployeeService->EmployeeRepository:increaseAwardsToEmployeesNative(organizationId)
+AwardService<-EmployeeRepository:totalUpdatedRecords
+    AwardService->OrganizationService:block(uuid, organizationId)
     OrganizationService->OrganizationRepository:blockOrganizationById(UUID,organizationId)\nChange:\norganization.blocked:true\norganization.blocked_by:UUID
     AwardService->AwardCache: increseAwards(totalAwards)
     AwardService->MessageBroker: publish(AWARD_ORGANIZATION_SUCCESS_EVENT[UUID, instant, totalAffectedEmployees, totalAwards])
-    AwardService->AwardController: Success    
+    AwardService->AwardController:Success (log totalUpdatedRecords)
     AwardController->User: Ok 200: \nAwarded Organization
 else Organization is blocked
-    AwardController->User: Error 500: \nOrganization is blocked
+    AwardController->User: Error 400: \nThe organization is blocked\n and cannot perform this operation.
 else Organization is blocked
-    AwardController->User: Error 404: \nOrganization ID is not Valid
+    AwardController->User: Error 404: \nOrganization with id: \n{organizationId} not found
 end
 
 
@@ -85,7 +103,7 @@ ref over OrganizationService, MessageBroker #FCE6D0: Repeatable Organization Unb
 
 MessageBroker-->StreamProcessor: process(UNBLOCK_ORGANIZATION_SUCCESS_EVENT[UUID, instant, Organization])
 StreamProcessor->OrganizationService: handleUnblockOrganizationSuccess(UNBLOCK_ORGANIZATION_SUCCESS_EVENT)
-OrganizationService->AwardBatchLogService:cleanAwardBatchLogs(UUID)
+OrganizationService->AwardOperationLogService:cleanAwardBatchLogs(UUID)
 
 MessageBroker-->StreamProcessor: process(UNBLOCK_ORGANIZATION_FAILURE_EVENT[UUID, instant, Organization])
 StreamProcessor->OrganizationService: handleUnblockOrganizationFailure(UNBLOCK_ORGANIZATION_FAILURE_EVENT)
@@ -103,7 +121,7 @@ group #2f2e7b repeatableRollback(UUID) #white
         alt Award rollback success
             AwardService->AwardService: await(attempt * ENV{timeToWaitRetry})
             group rollback(UUID)
-                AwardService->AwardBatchLogService: getAwardBatchLogs(UUID)
+                AwardService->AwardOperationLogService: getAwardBatchLogs(UUID)
                 AwardRepository->AwardService: List<BatchLogs>
                 loop for each List<long> batch in batches
                     AwardService->EmployeeService: removeDundieAwardToEmployees(batch)

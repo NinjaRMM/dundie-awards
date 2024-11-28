@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="content">
+    <div th:switch="${organizations}" class="mt-5">
+        <p th:case="null" class="alert alert-warning">No organizations</p>
+        <div th:case="*">
+            <h2 class="mb-3">Organizations</h2>
+            <table class="table table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Blocked</th>
+                    <th width="30%">Blocked By</th>
+                    <th>Award</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="organization : ${organizations}">
+                    <td th:text="${organization.name}"></td>
+                    <td th:text="${organization.blocked}"></td>
+                    <td th:text="${organization.blockedBy}"></td>
+                    <td>
+                        <button 
+						    th:disabled="${organization.blocked}" 
+						    class="awardButton" 
+						    th:classappend="${(organization.id == 3 && !organization.blocked) ? 'btn-danger' : ''}" 
+						    type="button" 
+						    th:value="${organization.id}">
+						    Gift Award
+						</button>
+                        <span th:if="${organization.id == 3}" class="text-danger ml-2 small">
+					        <i class="bi bi-exclamation-triangle-fill"></i> 3 Millions of employees <span class="small">(takes ~15 sec)</span>
+					    </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

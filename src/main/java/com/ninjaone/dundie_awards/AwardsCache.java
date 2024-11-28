@@ -15,4 +15,8 @@ public class AwardsCache {
     public void addOneAward(){
         this.totalAwards += 1;
     }
+    
+    public void addAwards(int total){
+        this.totalAwards += total;
+    }
 }

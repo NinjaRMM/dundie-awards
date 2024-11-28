@@ -5,7 +5,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <!-- Include Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+	
     <style>
         /* Add any additional custom styles here */
         body {
@@ -15,6 +16,7 @@
 </head>
 <body>
 <div id="awards"></div>
+<div id="organizations"></div>
 <div id="employees"></div>
 <div id="activities"></div>
 <div id="queueMessages"></div>
@@ -41,6 +43,23 @@
             $('#awards').html(data);
         });
 	}
+	
+	function getOrganizations() {
+     	$.get({
+             url: '/organizations/view'
+         }).done((data) => {
+             $('#organizations').html(data);
+             $('.awardButton').click(function() {
+                 $.post({
+                     url: '/give-dundie-awards/' + $(this).val()
+                 }).done(() => {
+                	getOrganizations();
+                 	getEmployees();
+                 	getTotalDundieAwards();
+                 });
+             });
+         });
+     };
 	
      function getEmployees() {
      	$.get({
@@ -72,6 +91,7 @@
 
      $(document).ready(() => {
     	 getTotalDundieAwards();
+    	 getOrganizations();
     	 getEmployees();
     	 getActivities();
     	 getMessages();

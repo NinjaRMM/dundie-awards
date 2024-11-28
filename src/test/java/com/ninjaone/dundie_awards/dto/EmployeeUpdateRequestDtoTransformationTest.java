@@ -1,7 +1,7 @@
 package com.ninjaone.dundie_awards.dto;
 
-import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployee;
-import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeUpdateRequestDto;
+import static com.ninjaone.dundie_awards.TestEntityFactory.createEmployee;
+import static com.ninjaone.dundie_awards.TestEntityFactory.createEmployeeUpdateRequestDto;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.BDDMockito.given;
 
@@ -29,6 +29,7 @@ class EmployeeUpdateRequestDtoTransformationTest {
         Organization mockOrganization = Organization.builder()
                 .id(2L)
                 .name("Squanchy")
+                .blocked(false)
                 .build();
 
         given(organizationService.getOrganization(2L)).willReturn(mockOrganization);

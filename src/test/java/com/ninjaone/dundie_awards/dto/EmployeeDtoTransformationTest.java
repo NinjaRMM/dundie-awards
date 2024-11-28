@@ -20,6 +20,7 @@ class EmployeeDtoTransformationTest {
                         Organization.builder()
                                 .id(2L)
                                 .name("Squanchy")
+                                .blocked(false)
                                 .build()
                 )
                 .build();

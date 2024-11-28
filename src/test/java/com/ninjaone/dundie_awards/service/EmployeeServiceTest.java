@@ -1,15 +1,17 @@
 package com.ninjaone.dundie_awards.service;
 
-import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployee;
-import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeDto;
-import static com.ninjaone.dundie_awards.util.TestEntityFactory.createEmployeeUpdateRequestDto;
+import static com.ninjaone.dundie_awards.TestEntityFactory.createEmployee;
+import static com.ninjaone.dundie_awards.TestEntityFactory.createEmployeeDto;
+import static com.ninjaone.dundie_awards.TestEntityFactory.createEmployeeUpdateRequestDto;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -98,6 +100,34 @@ class EmployeeServiceTest {
             assertThat(exception.getMessage()).isEqualTo("Employee with id: 999 not found");
         }
     }
+    
+    @Nested
+    class GetEmployeeIdsByOrganizationTests {
+
+        @Test
+        void shouldReturnEmployeeIdsForOrganization() {
+            long organizationId = 1L;
+            List<Long> employeeIds = List.of(1L, 2L, 3L);
+            given(employeeRepository.findEmployeeIdsByOrganizationId(organizationId)).willReturn(employeeIds);
+
+            List<Long> result = employeeService.getEmployeesIdsByOrganization(UUID.randomUUID(), organizationId);
+
+            assertThat(result).isEqualTo(employeeIds);
+            verify(employeeRepository).findEmployeeIdsByOrganizationId(organizationId);
+        }
+
+        @Test
+        void shouldReturnEmptyListForOrganizationWithoutEmployees() {
+            long organizationId = 999L;
+            given(employeeRepository.findEmployeeIdsByOrganizationId(organizationId)).willReturn(List.of());
+
+            List<Long> result = employeeService.getEmployeesIdsByOrganization(UUID.randomUUID(),organizationId);
+
+            assertThat(result).isEmpty();
+            verify(employeeRepository).findEmployeeIdsByOrganizationId(organizationId);
+        }
+    }
+
 
     @Nested
     class UpdateEmployeeTests {
@@ -110,7 +140,10 @@ class EmployeeServiceTest {
     	            .dundieAwards(5)
     	            .firstName("Ryan")
     	            .lastName("Howard")
-    	            .organization(Organization.builder().id(1L).build())
+    	            .organization(Organization.builder()
+    	            		.id(1L)
+    	            		.blocked(false)
+    	            		.build())
     	            .build();
     	    
     	    given(employeeRepository.findById(1L)).willReturn(Optional.of(existingEmployee));
@@ -176,6 +209,35 @@ class EmployeeServiceTest {
             );
 
             assertThat(exception.getMessage()).isEqualTo("Employee with id: 999 not found");
+        }
+    }
+    
+    @Nested
+    class FetchEmployeeRollbackDataTests {
+
+        @Test
+        void shouldFetchEmployeeRollbackData() {
+            UUID uuid = UUID.randomUUID();
+            Long organizationId = 1L;
+            String rollbackData = "1,8|2,9|3,2";
+            given(employeeRepository.findConcatenatedEmployeeDataByOrganizationIdNative(organizationId)).willReturn(rollbackData);
+
+            String result = employeeService.fetchEmployeeRollbackData(uuid, organizationId);
+
+            assertThat(result).isEqualTo(rollbackData);
+            verify(employeeRepository).findConcatenatedEmployeeDataByOrganizationIdNative(organizationId);
+        }
+
+        @Test
+        void shouldReturnEmptyStringIfNoRollbackDataFound() {
+            UUID uuid = UUID.randomUUID();
+            Long organizationId = 999L;
+            given(employeeRepository.findConcatenatedEmployeeDataByOrganizationIdNative(organizationId)).willReturn("");
+
+            String result = employeeService.fetchEmployeeRollbackData(uuid, organizationId);
+
+            assertThat(result).isEmpty();
+            verify(employeeRepository).findConcatenatedEmployeeDataByOrganizationIdNative(organizationId);
         }
     }
 }
