@@ -47,4 +47,17 @@ class AwardOperationLogServiceTest {
                     ));
         }
     }
+    
+    @Nested
+    class CleanAwardOperationLogTests {
+
+        @Test
+        void shouldCleanAwardOperationLog() {
+            UUID uuid = UUID.randomUUID();
+
+            awardOperationLogService.cleanAwardOperationLog(uuid);
+
+            then(awardOperationLogRepository).should(times(1)).deleteById(uuid.toString());
+        }
+    }
 }

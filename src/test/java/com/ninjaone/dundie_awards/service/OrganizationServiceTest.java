@@ -230,6 +230,57 @@ class OrganizationServiceTest {
             verify(organizationRepository).findAll();
         }
     }
+    
+    @Nested
+    class UnblockTests {
+
+        @Test
+        void shouldUnblockOrganizationSuccessfully() {
+            UUID uuid = UUID.randomUUID();
+            Long organizationId = 1L;
+            Organization blockedOrganization = Organization.builder()
+                .id(organizationId)
+                .name("Acme Corp")
+                .blocked(true)
+                .blockedBy(uuid.toString())
+                .build();
+            Organization unblockedOrganization = blockedOrganization.toBuilder()
+                .blocked(false)
+                .blockedBy(null)
+                .build();
+
+            given(organizationRepository.save(unblockedOrganization)).willReturn(unblockedOrganization);
+
+            Organization result = organizationService.unblock(uuid, blockedOrganization);
+
+            assertThat(result).isEqualTo(unblockedOrganization);
+            assertThat(result.isBlocked()).isFalse();
+            assertThat(result.getBlockedBy()).isNull();
+            verify(organizationRepository).save(unblockedOrganization);
+        }
+
+        @Test
+        void shouldThrowExceptionWhenUnblockingNonExistingOrganization() {
+            UUID uuid = UUID.randomUUID();
+            Organization nonExistingOrganization = Organization.builder()
+                .id(999L)
+                .name("Non-existing")
+                .blocked(true)
+                .build();
+
+            given(organizationRepository.save(nonExistingOrganization)).willThrow(new IllegalArgumentException("Organization not found"));
+
+            IllegalArgumentException exception = catchThrowableOfType(
+                () -> organizationService.unblock(uuid, nonExistingOrganization),
+                IllegalArgumentException.class
+            );
+
+            assertThat(exception).isNotNull();
+            assertThat(exception.getMessage()).isEqualTo("Organization not found");
+            verify(organizationRepository).save(nonExistingOrganization);
+        }
+    }
+
 
 
 }

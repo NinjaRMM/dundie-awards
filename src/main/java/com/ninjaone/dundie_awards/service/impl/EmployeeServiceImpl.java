@@ -31,12 +31,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
 	public List<EmployeeDto> getAllEmployees() {
-        log.info("getAllEmployees - Fetching all employees. Except from Garfield organization.");
+        log.debug("getAllEmployees - Fetching all employees. Except from Garfield organization.");
         List<EmployeeDto> employees = employeeRepository.findAllByOrganizationIdNot(GARFIELD.getId())
                 .stream()
                 .map(EmployeeDto::toDto)
                 .collect(Collectors.toList());
-        log.info("getAllEmployees - Fetched {} employees.  Except from Garfield organization.", employees.size());
+        log.debug("getAllEmployees - Fetched {} employees.  Except from Garfield organization.", employees.size());
         return employees;
     }
 

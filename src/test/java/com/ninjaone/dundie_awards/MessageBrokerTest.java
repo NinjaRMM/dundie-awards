@@ -15,6 +15,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationEventPublisher;
 
 import com.ninjaone.dundie_awards.event.Event;
+import com.ninjaone.dundie_awards.model.Activity;
+import com.ninjaone.dundie_awards.model.Organization;
 
 class MessageBrokerTest {
 
@@ -35,7 +37,8 @@ class MessageBrokerTest {
                 UUID.randomUUID(),
                 Instant.now(),
                 100,
-                100
+                100,
+                new Organization()
         );
 
         messageBroker.sendMessage(event);
@@ -51,7 +54,8 @@ class MessageBrokerTest {
                 UUID.randomUUID(),
                 Instant.now(),
                 50,
-                50
+                50,
+                new Organization()
         );
         messageBroker.sendMessage(event);
         messageBroker.processQueue();
@@ -68,5 +72,81 @@ class MessageBrokerTest {
         messageBroker.processQueue();
 
         then(eventPublisher).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void shouldPublishAwardOrganizationSuccessEvent() throws InterruptedException {
+        UUID uuid = UUID.randomUUID();
+        Instant occurredAt = Instant.now();
+        Organization organization = new Organization();
+
+        messageBroker.publishAwardOrganizationSuccessEvent(uuid, occurredAt, 100, 200, organization);
+        messageBroker.processQueue();
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        then(eventPublisher).should().publishEvent(eventCaptor.capture());
+
+        Event publishedEvent = eventCaptor.getValue();
+        assertThat(publishedEvent.uuid()).isEqualTo(uuid);
+        assertThat(publishedEvent.totalAffectedEmployees()).isEqualTo(100);
+        assertThat(publishedEvent.totalAwards()).isEqualTo(200);
+        assertThat(publishedEvent.organization()).isEqualTo(organization);
+    }
+
+
+    @Test
+    void shouldPublishSaveActivityAwardOrganizationSuccessEvent() {
+        UUID uuid = UUID.randomUUID();
+        Activity activity = new Activity();
+        Integer totalAwards = 200;
+
+        messageBroker.publishSaveActivityAwardOrganizationSuccessEvent(uuid, activity, totalAwards, null);
+        messageBroker.processQueue();
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        then(eventPublisher).should().publishEvent(eventCaptor.capture());
+
+        Event publishedEvent = eventCaptor.getValue();
+        assertThat(publishedEvent.uuid()).isEqualTo(uuid);
+        assertThat(publishedEvent.totalAwards()).isEqualTo(totalAwards);
+        assertThat(publishedEvent.activity()).isEqualTo(activity);
+    }
+
+    @Test
+    void shouldPublishSaveActivityAwardOrganizationRetryEvent() {
+        UUID uuid = UUID.randomUUID();
+        Integer attempt = 2;
+        Integer totalAwards = 150;
+        Activity activity = new Activity();
+        Organization organization = new Organization();
+
+        messageBroker.publishSaveActivityAwardOrganizationRetryEvent(uuid, totalAwards, attempt, activity, organization);
+        messageBroker.processQueue();
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        then(eventPublisher).should().publishEvent(eventCaptor.capture());
+
+        Event publishedEvent = eventCaptor.getValue();
+        assertThat(publishedEvent.uuid()).isEqualTo(uuid);
+        assertThat(publishedEvent.totalAwards()).isEqualTo(totalAwards);
+        assertThat(publishedEvent.attempt()).isEqualTo(attempt);
+        assertThat(publishedEvent.activity()).isEqualTo(activity);
+        assertThat(publishedEvent.organization()).isEqualTo(organization);
+    }
+
+    @Test
+    void shouldPublishSaveActivityAwardOrganizationFailureEvent() {
+        UUID uuid = UUID.randomUUID();
+        Integer totalAwards = 150;
+        Activity activity = new Activity();
+        Organization organization = new Organization();
+
+        messageBroker.publishSaveActivityAwardOrganizationFailureEvent(uuid, totalAwards, activity, organization);
+        messageBroker.processQueue();
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        then(eventPublisher).should().publishEvent(eventCaptor.capture());
+
+        Event publishedEvent = eventCaptor.getValue();
+        assertThat(publishedEvent.uuid()).isEqualTo(uuid);
+        assertThat(publishedEvent.totalAwards()).isEqualTo(totalAwards);
+        assertThat(publishedEvent.activity()).isEqualTo(activity);
+        assertThat(publishedEvent.organization()).isEqualTo(organization);
     }
 }

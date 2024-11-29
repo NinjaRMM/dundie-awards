@@ -17,10 +17,14 @@ public interface OrganizationService {
 
 	Organization block(UUID uuid, Long id);
 
+	Organization unblock(UUID uuid, Organization organization);
+	
 	List<OrganizationDto> getAllOrganizations();
 	
 	public void handleUnblockOrganizationSuccessEvent(Event event);
 	public void handleUnblockOrganizationRetryEvent(Event event);
 	public void handleUnblockOrganizationFailureEvent(Event event);
+
+
 
 }

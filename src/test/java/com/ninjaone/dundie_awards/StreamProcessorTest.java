@@ -14,15 +14,11 @@ import org.mockito.MockitoAnnotations;
 import com.ninjaone.dundie_awards.event.Event;
 import com.ninjaone.dundie_awards.service.ActivityService;
 import com.ninjaone.dundie_awards.service.AwardService;
-import com.ninjaone.dundie_awards.service.OrganizationService;
 
 class StreamProcessorTest {
 
     @Mock
     private ActivityService activityService;
-
-    @Mock
-    private OrganizationService organizationService;
 
     @Mock
     private AwardService awardService;
@@ -41,7 +37,8 @@ class StreamProcessorTest {
                 UUID.randomUUID(),
                 Instant.now(),
                 10,
-                10
+                10,
+                null
         );
         streamProcessor.process(event);
         verify(activityService).handleAwardOrganizationSuccessEvent(event);
@@ -52,6 +49,8 @@ class StreamProcessorTest {
         Event event = Event.createSaveActivityAwardOrganizationSuccessEvent(
                 UUID.randomUUID(),
                 Instant.now(),
+                10,
+                null, 
                 null
         );
         streamProcessor.process(event);
@@ -63,7 +62,9 @@ class StreamProcessorTest {
         Event event = Event.createSaveActivityAwardOrganizationRetryEvent(
                 UUID.randomUUID(),
                 Instant.now(),
+                10,
                 1,
+                null,
                 null
         );
         streamProcessor.process(event);
@@ -75,44 +76,12 @@ class StreamProcessorTest {
         Event event = Event.createSaveActivityAwardOrganizationFailureEvent(
                 UUID.randomUUID(),
                 Instant.now(),
+                10,
+                null,
                 null
         );
         streamProcessor.process(event);
         verify(awardService).handleSaveActivityAwardOrganizationFailureEvent(event);
-    }
-
-    @Test
-    void shouldProcessUnblockOrganizationSuccessEvent() {
-        Event event = Event.createUnblockOrganizationSuccessEvent(
-                UUID.randomUUID(),
-                Instant.now(),
-                null
-        );
-        streamProcessor.process(event);
-        verify(organizationService).handleUnblockOrganizationSuccessEvent(event);
-    }
-
-    @Test
-    void shouldProcessUnblockOrganizationRetryEvent() {
-        Event event = Event.createUnblockOrganizationRetryEvent(
-                UUID.randomUUID(),
-                Instant.now(),
-                1,
-                null
-        );
-        streamProcessor.process(event);
-        verify(organizationService).handleUnblockOrganizationRetryEvent(event);
-    }
-
-    @Test
-    void shouldProcessUnblockOrganizationFailureEvent() {
-        Event event = Event.createUnblockOrganizationFailureEvent(
-                UUID.randomUUID(),
-                Instant.now(),
-                null
-        );
-        streamProcessor.process(event);
-        verify(organizationService).handleUnblockOrganizationFailureEvent(event);
     }
 
     @Test

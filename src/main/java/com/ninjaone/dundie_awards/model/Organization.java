@@ -34,8 +34,10 @@ import lombok.ToString;
 @Table(name = "organizations")
 public class Organization {
 	
-	//If we have Squanchy and Pokemon cats, then this one cannot be missing:
+	//GARFIELD to load test, as GARFIELD is heavy 
 	public final static Organization GARFIELD = Organization.builder().name("Garfield").blocked(false).blockedBy(null).build();
+	//TOM to failure test, as he never is right
+	public final static Organization TOM = Organization.builder().name("Tom").blocked(false).blockedBy(null).build();
 
 	@EqualsAndHashCode.Include
 	@Id

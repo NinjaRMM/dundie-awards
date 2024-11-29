@@ -29,3 +29,7 @@ spring:
 app:
   batchSize: 1000
   messageProcessingIntervalMs: 7000
+  enableTestBehavior: true
+  retrySaveActivity:
+    maxAttempts: 3
+    backoffDelayMs: 3000

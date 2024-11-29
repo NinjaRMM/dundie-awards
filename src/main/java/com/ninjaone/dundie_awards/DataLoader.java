@@ -1,19 +1,16 @@
 package com.ninjaone.dundie_awards;
 
 import static com.ninjaone.dundie_awards.model.Organization.GARFIELD;
+import static com.ninjaone.dundie_awards.model.Organization.TOM;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.LongStream;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.ninjaone.dundie_awards.event.Event;
-import com.ninjaone.dundie_awards.model.Activity;
 import com.ninjaone.dundie_awards.model.Employee;
 import com.ninjaone.dundie_awards.model.Organization;
 import com.ninjaone.dundie_awards.repository.EmployeeRepository;
@@ -43,6 +40,7 @@ public class DataLoader implements CommandLineRunner {
         	List<Organization> organizations = List.of(
         			Organization.builder().name("Pikashu").blocked(false).blockedBy(null).build(),
         			Organization.builder().name("Squanchy").blocked(false).blockedBy(null).build(),
+        			TOM,
         			GARFIELD
         			);
         	organizationRepository.saveAll(organizations);
@@ -61,6 +59,15 @@ public class DataLoader implements CommandLineRunner {
             	    new Employee("Pam", "Beesley", organizations.get(1))
             	);
         	employeeRepository.saveAll(squanchyEmployees);
+        	
+        	List<Employee> tomEmployees = List.of(
+        	        new Employee("Andy", "Bernard", organizations.get(2)),
+        	        new Employee("Stanley", "Hudson", organizations.get(2)),
+        	        new Employee("Phyllis", "Vance", organizations.get(2)),
+        	        new Employee("Meredith", "Palmer", organizations.get(2))
+        	);
+        	employeeRepository.saveAll(tomEmployees);
+
         }
 
         int totalAwards = employeeRepository.findAll().stream()
@@ -73,8 +80,6 @@ public class DataLoader implements CommandLineRunner {
         //can't keep it during development cos each restart takes too long
 //        loadThreeMilionsRecordsToGarfieldOrganization();
         
-        //load to sample
-        publishSampleEvents();
     }
     
 
@@ -111,24 +116,4 @@ public class DataLoader implements CommandLineRunner {
     
     }
     
-    private void publishSampleEvents() {
-        log.info("Publishing sample events to MessageBroker...");
-
-        UUID uuid = UUID.randomUUID();
-        Instant now = Instant.now();
-
-        // Create and publish an event of each type
-        messageBroker.sendMessage(Event.createAwardOrganizationSuccessEvent(uuid, now, 100, 50));
-        messageBroker.sendMessage(Event.createSaveActivityAwardOrganizationSuccessEvent(uuid, now, new Activity()));
-        messageBroker.sendMessage(Event.createSaveActivityAwardOrganizationRetryEvent(uuid, now, 3, new Activity()));
-        messageBroker.sendMessage(Event.createSaveActivityAwardOrganizationFailureEvent(uuid, now, new Activity()));
-        messageBroker.sendMessage(Event.createUnblockOrganizationSuccessEvent(uuid, now, new Organization()));
-        messageBroker.sendMessage(Event.createUnblockOrganizationRetryEvent(uuid, now, 2, new Organization()));
-        messageBroker.sendMessage(Event.createUnblockOrganizationFailureEvent(uuid, now, new Organization()));
-        messageBroker.sendMessage(Event.createAwardOrganizationRollbackSuccessEvent(uuid, now, 75, 25));
-        messageBroker.sendMessage(Event.createAwardOrganizationRollbackRetryEvent(uuid, now, 1));
-        messageBroker.sendMessage(Event.createAwardOrganizationRollbackFailureEvent(uuid, now));
-
-        log.info("Sample events published successfully.");
-    }
 }

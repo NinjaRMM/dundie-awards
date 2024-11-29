@@ -24,13 +24,20 @@
                         <button 
 						    th:disabled="${organization.blocked}" 
 						    class="awardButton" 
-						    th:classappend="${(organization.id == 3 && !organization.blocked) ? 'btn-danger' : ''}" 
+						    th:classappend="${(organization.name == 'Garfield' && !organization.blocked) ? 'btn-danger' : ''}" 
 						    type="button" 
 						    th:value="${organization.id}">
 						    Gift Award
 						</button>
-                        <span th:if="${organization.id == 3}" class="text-danger ml-2 small">
-					        <i class="bi bi-exclamation-triangle-fill"></i> 3 Millions of employees <span class="small">(takes ~15 sec)</span>
+                        <span th:if="${organization.name == 'Garfield'}" class="text-danger ml-2 small">
+					        <i class="bi bi-exclamation-triangle-fill"></i> 3 Millions of employees. 
+					        <span th:if="${enableTestBehavior}">Will always fail</span>
+					        <span class="small">(takes ~15 sec)</span>
+					    </span>
+						<span th:if="${enableTestBehavior}">
+						    <span th:if="${organization.name == 'Tom'}" class="text ml-2 small">
+						        <i class="bi bi-exclamation-triangle-fill"></i> Will fail but recover with retry events strategy
+						    </span>
 					    </span>
                     </td>
                 </tr>

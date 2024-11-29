@@ -7,4 +7,6 @@ public interface AwardOperationLogService {
 
 	void createAwardOperationLog(UUID uuid, Instant occurredAt, String rollbackData);
 
+	void cleanAwardOperationLog(UUID uuid);
+
 }

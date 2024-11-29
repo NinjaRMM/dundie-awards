@@ -54,11 +54,10 @@
                      url: '/give-dundie-awards/' + $(this).val()
                  }).done(() => {
                 	getOrganizations();
-                 	getEmployees();
-                 	getTotalDundieAwards();
+                 	getEmployees();                 	
                  });
              });
-         });
+         })
      };
 	
      function getEmployees() {
@@ -76,6 +75,10 @@
               }
           }).done((data) => {
               $('#activities').html(data);
+              getOrganizations();
+              getTotalDundieAwards();
+          }).always(() => {
+              setTimeout(getActivities, 2000);
           });
       };
       
@@ -87,7 +90,7 @@
           }).done((data) => {
               $('#queueMessages').html(data);
           }).always(() => {
-              setTimeout(getMessages, 1000);
+              setTimeout(getMessages, 2000);
           });
       };
 

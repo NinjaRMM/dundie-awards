@@ -9,7 +9,12 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties("app")
 public record AppProperties(
         @Min(1) @NotNull int batchSize,
-        @Min(7000) @NotNull int messageProcessingIntervalMs
-        
+        @Min(7000) @NotNull int messageProcessingIntervalMs,
+        @NotNull RetrySaveActivityConfig retrySaveActivity,
+        @NotNull boolean enableTestBehavior
 ) {
+    public record RetrySaveActivityConfig(
+            @Min(0) @NotNull int maxAttempts,
+            @Min(0) @NotNull int backoffDelayMs
+    ) {}
 }

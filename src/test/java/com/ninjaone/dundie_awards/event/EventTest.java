@@ -18,9 +18,10 @@ class EventTest {
         Instant occurredAt = Instant.now();
         int totalAffectedEmployees = 100;
         int totalAwards = 50;
+        Organization organization = new Organization();
 
         Event event = Event.createAwardOrganizationSuccessEvent(
-                uuid, occurredAt, totalAffectedEmployees, totalAwards
+                uuid, occurredAt, totalAffectedEmployees, totalAwards, organization
         );
 
         assertThat(event.uuid()).isEqualTo(uuid);
@@ -28,27 +29,28 @@ class EventTest {
         assertThat(event.eventType()).isEqualTo(EventType.AWARD_ORGANIZATION_SUCCESS_EVENT);
         assertThat(event.totalAffectedEmployees()).isEqualTo(totalAffectedEmployees);
         assertThat(event.totalAwards()).isEqualTo(totalAwards);
+        assertThat(event.organization()).isEqualTo(organization);
         assertThat(event.attempt()).isNull();
         assertThat(event.activity()).isNull();
-        assertThat(event.organization()).isNull();
     }
 
     @Test
     void shouldCreateSaveActivityAwardOrganizationSuccessEvent() {
         UUID uuid = UUID.randomUUID();
         Instant occurredAt = Instant.now();
-        Activity activity = new Activity(); 
+        int totalAwards = 50;
+        Activity activity = new Activity();
 
         Event event = Event.createSaveActivityAwardOrganizationSuccessEvent(
-                uuid, occurredAt, activity
+                uuid, occurredAt, totalAwards, activity, null
         );
 
         assertThat(event.uuid()).isEqualTo(uuid);
         assertThat(event.occurredAt()).isEqualTo(occurredAt);
         assertThat(event.eventType()).isEqualTo(EventType.SAVE_ACTIVITY_AWARD_ORGANIZATION_SUCCESS_EVENT);
+        assertThat(event.totalAwards()).isEqualTo(totalAwards);
         assertThat(event.activity()).isEqualTo(activity);
         assertThat(event.totalAffectedEmployees()).isNull();
-        assertThat(event.totalAwards()).isNull();
         assertThat(event.attempt()).isNull();
         assertThat(event.organization()).isNull();
     }
@@ -57,172 +59,49 @@ class EventTest {
     void shouldCreateSaveActivityAwardOrganizationRetryEvent() {
         UUID uuid = UUID.randomUUID();
         Instant occurredAt = Instant.now();
+        int totalAwards = 50;
         int attempt = 3;
-        Activity activity = new Activity(); 
+        Activity activity = new Activity();
+        Organization organization = new Organization();
 
         Event event = Event.createSaveActivityAwardOrganizationRetryEvent(
-                uuid, occurredAt, attempt, activity
+                uuid, occurredAt, totalAwards, attempt, activity, organization
         );
 
         assertThat(event.uuid()).isEqualTo(uuid);
         assertThat(event.occurredAt()).isEqualTo(occurredAt);
         assertThat(event.eventType()).isEqualTo(EventType.SAVE_ACTIVITY_AWARD_ORGANIZATION_RETRY_EVENT);
+        assertThat(event.totalAwards()).isEqualTo(totalAwards);
         assertThat(event.attempt()).isEqualTo(attempt);
         assertThat(event.activity()).isEqualTo(activity);
-        assertThat(event.totalAffectedEmployees()).isNull();
-        assertThat(event.totalAwards()).isNull();
-        assertThat(event.organization()).isNull();
+        assertThat(event.organization()).isEqualTo(organization);
     }
 
     @Test
     void shouldCreateSaveActivityAwardOrganizationFailureEvent() {
         UUID uuid = UUID.randomUUID();
         Instant occurredAt = Instant.now();
-        Activity activity = new Activity(); 
+        int totalAwards = 50;
+        Activity activity = new Activity();
+        Organization organization = new Organization();
 
         Event event = Event.createSaveActivityAwardOrganizationFailureEvent(
-                uuid, occurredAt, activity
+                uuid, occurredAt, totalAwards, activity, organization
         );
 
         assertThat(event.uuid()).isEqualTo(uuid);
         assertThat(event.occurredAt()).isEqualTo(occurredAt);
         assertThat(event.eventType()).isEqualTo(EventType.SAVE_ACTIVITY_AWARD_ORGANIZATION_FAILURE_EVENT);
-        assertThat(event.activity()).isEqualTo(activity);
-        assertThat(event.totalAffectedEmployees()).isNull();
-        assertThat(event.totalAwards()).isNull();
-        assertThat(event.attempt()).isNull();
-        assertThat(event.organization()).isNull();
-    }
-
-    @Test
-    void shouldCreateUnblockOrganizationSuccessEvent() {
-        UUID uuid = UUID.randomUUID();
-        Instant occurredAt = Instant.now();
-        Organization organization = new Organization(); 
-
-        Event event = Event.createUnblockOrganizationSuccessEvent(
-                uuid, occurredAt, organization
-        );
-
-        assertThat(event.uuid()).isEqualTo(uuid);
-        assertThat(event.occurredAt()).isEqualTo(occurredAt);
-        assertThat(event.eventType()).isEqualTo(EventType.UNBLOCK_ORGANIZATION_SUCCESS_EVENT);
-        assertThat(event.organization()).isEqualTo(organization);
-        assertThat(event.totalAffectedEmployees()).isNull();
-        assertThat(event.totalAwards()).isNull();
-        assertThat(event.attempt()).isNull();
-        assertThat(event.activity()).isNull();
-    }
-
-    @Test
-    void shouldCreateUnblockOrganizationRetryEvent() {
-        UUID uuid = UUID.randomUUID();
-        Instant occurredAt = Instant.now();
-        int attempt = 2;
-        Organization organization = new Organization(); 
-
-        Event event = Event.createUnblockOrganizationRetryEvent(
-                uuid, occurredAt, attempt, organization
-        );
-
-        assertThat(event.uuid()).isEqualTo(uuid);
-        assertThat(event.occurredAt()).isEqualTo(occurredAt);
-        assertThat(event.eventType()).isEqualTo(EventType.UNBLOCK_ORGANIZATION_RETRY_EVENT);
-        assertThat(event.attempt()).isEqualTo(attempt);
-        assertThat(event.organization()).isEqualTo(organization);
-        assertThat(event.totalAffectedEmployees()).isNull();
-        assertThat(event.totalAwards()).isNull();
-        assertThat(event.activity()).isNull();
-    }
-
-    @Test
-    void shouldCreateUnblockOrganizationFailureEvent() {
-        UUID uuid = UUID.randomUUID();
-        Instant occurredAt = Instant.now();
-        Organization organization = new Organization(); 
-
-        Event event = Event.createUnblockOrganizationFailureEvent(
-                uuid, occurredAt, organization
-        );
-
-        assertThat(event.uuid()).isEqualTo(uuid);
-        assertThat(event.occurredAt()).isEqualTo(occurredAt);
-        assertThat(event.eventType()).isEqualTo(EventType.UNBLOCK_ORGANIZATION_FAILURE_EVENT);
-        assertThat(event.organization()).isEqualTo(organization);
-        assertThat(event.totalAffectedEmployees()).isNull();
-        assertThat(event.totalAwards()).isNull();
-        assertThat(event.attempt()).isNull();
-        assertThat(event.activity()).isNull();
-    }
-
-    @Test
-    void shouldCreateAwardOrganizationRollbackSuccessEvent() {
-        UUID uuid = UUID.randomUUID();
-        Instant occurredAt = Instant.now();
-        int totalAffectedEmployees = 75;
-        int totalAwards = 25;
-
-        Event event = Event.createAwardOrganizationRollbackSuccessEvent(
-                uuid, occurredAt, totalAffectedEmployees, totalAwards
-        );
-
-        assertThat(event.uuid()).isEqualTo(uuid);
-        assertThat(event.occurredAt()).isEqualTo(occurredAt);
-        assertThat(event.eventType()).isEqualTo(EventType.AWARD_ORGANIZATION_ROLLBACK_SUCCESS_EVENT);
-        assertThat(event.totalAffectedEmployees()).isEqualTo(totalAffectedEmployees);
         assertThat(event.totalAwards()).isEqualTo(totalAwards);
-        assertThat(event.activity()).isNull();
-        assertThat(event.organization()).isNull();
-        assertThat(event.attempt()).isNull();
+        assertThat(event.activity()).isEqualTo(activity);
+        assertThat(event.organization()).isEqualTo(organization);
     }
 
-    @Test
-    void shouldCreateAwardOrganizationRollbackRetryEvent() {
-        UUID uuid = UUID.randomUUID();
-        Instant occurredAt = Instant.now();
-        int attempt = 1;
-
-        Event event = Event.createAwardOrganizationRollbackRetryEvent(
-                uuid, occurredAt, attempt
-        );
-
-        assertThat(event.uuid()).isEqualTo(uuid);
-        assertThat(event.occurredAt()).isEqualTo(occurredAt);
-        assertThat(event.eventType()).isEqualTo(EventType.AWARD_ORGANIZATION_ROLLBACK_RETRY_EVENT);
-        assertThat(event.attempt()).isEqualTo(attempt);
-        assertThat(event.totalAffectedEmployees()).isNull();
-        assertThat(event.totalAwards()).isNull();
-        assertThat(event.activity()).isNull();
-        assertThat(event.organization()).isNull();
-    }
-
-    @Test
-    void shouldCreateAwardOrganizationRollbackFailureEvent() {
-        UUID uuid = UUID.randomUUID();
-        Instant occurredAt = Instant.now();
-
-        Event event = Event.createAwardOrganizationRollbackFailureEvent(
-                uuid, occurredAt
-        );
-
-        assertThat(event.uuid()).isEqualTo(uuid);
-        assertThat(event.occurredAt()).isEqualTo(occurredAt);
-        assertThat(event.eventType()).isEqualTo(EventType.AWARD_ORGANIZATION_ROLLBACK_FAILURE_EVENT);
-        assertThat(event.totalAffectedEmployees()).isNull();
-        assertThat(event.totalAwards()).isNull();
-        assertThat(event.activity()).isNull();
-        assertThat(event.organization()).isNull();
-        assertThat(event.attempt()).isNull();
-    }
-    
     @Test
     void shouldConvertEventToJsonAndBack() {
-    	UUID uuid = UUID.randomUUID();
+        UUID uuid = UUID.randomUUID();
         Event originalEvent = Event.createAwardOrganizationSuccessEvent(
-        		uuid,
-                Instant.now(),
-                50,
-                50
+                uuid, Instant.now(), 50, 50, new Organization()
         );
 
         String json = originalEvent.toJson();
@@ -247,10 +126,8 @@ class EventTest {
         }
         """.formatted(uuid);
 
-        // Act
         Event event = Event.fromJson(json);
 
-        // Assert
         assertThat(event.uuid()).isEqualTo(uuid);
         assertThat(event.eventType()).isEqualTo(EventType.AWARD_ORGANIZATION_SUCCESS_EVENT);
         assertThat(event.totalAffectedEmployees()).isEqualTo(100);

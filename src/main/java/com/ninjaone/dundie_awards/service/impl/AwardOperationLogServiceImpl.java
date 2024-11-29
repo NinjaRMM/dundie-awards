@@ -30,4 +30,11 @@ public class AwardOperationLogServiceImpl implements AwardOperationLogService {
         		.build());
         log.info("UUID: {} - createAwardOperationLog - Created createAwardOperationLog", uuid);
     }
+
+	@Override
+	public void cleanAwardOperationLog(UUID uuid) {
+		log.info("UUID: {} - cleanAwardOperationLog - Cleaning AwardOperationLog", uuid);
+		awardOperationLogRepository.deleteById(uuid.toString());
+		log.info("UUID: {} - cleanAwardOperationLog - Cleaning createAwardOperationLog", uuid);
+	}
 }

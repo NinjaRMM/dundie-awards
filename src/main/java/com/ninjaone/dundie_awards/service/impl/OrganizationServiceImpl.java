@@ -28,12 +28,12 @@ public class OrganizationServiceImpl implements OrganizationService {
     
     @Override
 	public List<OrganizationDto> getAllOrganizations() {
-        log.info("getAllOrganizations - Fetching all organizations.");
+        log.debug("getAllOrganizations - Fetching all organizations.");
         List<OrganizationDto> organizations = organizationRepository.findAll()
                 .stream()
                 .map(OrganizationDto::toDto)
                 .collect(Collectors.toList());
-        log.info("getAllOrganizations - Fetched {} organizations.", organizations.size());
+        log.debug("getAllOrganizations - Fetched {} organizations.", organizations.size());
         return organizations;
     }
     
@@ -78,6 +78,18 @@ public class OrganizationServiceImpl implements OrganizationService {
         		.build());
         log.info("UUID: {} - block - Blocked organization with ID : {} : {}", uuid, id, updatedOrganization);
 		return updatedOrganization;
+    }
+
+    @Override
+    public Organization unblock(UUID uuid, Organization organization) {
+    	log.info("UUID: {} - unblock - Unblocking organization with ID: {}", uuid, organization.getId());
+    	Organization updatedOrganization = organizationRepository.save(
+    			organization.toBuilder()
+    			.blocked(false)
+    			.blockedBy(null)
+    			.build());
+    	log.info("UUID: {} - unblock - Unblocked organization with ID : {} : {}", uuid, organization.getId(), updatedOrganization);
+    	return updatedOrganization;
     }
 
     private Organization findOrganizationById(Long id) {

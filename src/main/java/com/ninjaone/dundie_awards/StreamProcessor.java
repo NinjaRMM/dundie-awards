@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import com.ninjaone.dundie_awards.event.Event;
 import com.ninjaone.dundie_awards.service.ActivityService;
 import com.ninjaone.dundie_awards.service.AwardService;
-import com.ninjaone.dundie_awards.service.OrganizationService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 public class StreamProcessor {
 
     private final ActivityService activityService;
-    private final OrganizationService organizationService;
     private final AwardService awardService;
 
     @EventListener
@@ -34,15 +32,6 @@ public class StreamProcessor {
             //Else start rollback process
             case SAVE_ACTIVITY_AWARD_ORGANIZATION_FAILURE_EVENT -> 
                 awardService.handleSaveActivityAwardOrganizationFailureEvent(event);
-            
-            //Organization persistance events are handled at OrganizationService
-            case UNBLOCK_ORGANIZATION_SUCCESS_EVENT -> 
-                organizationService.handleUnblockOrganizationSuccessEvent(event);
-            case UNBLOCK_ORGANIZATION_RETRY_EVENT -> 
-                organizationService.handleUnblockOrganizationRetryEvent(event);
-            case UNBLOCK_ORGANIZATION_FAILURE_EVENT -> 
-                organizationService.handleUnblockOrganizationFailureEvent(event);
-            
             //Rollback events are handled at AwardService
             case AWARD_ORGANIZATION_ROLLBACK_SUCCESS_EVENT -> 
                 awardService.handleAwardOrganizationRollbackSuccessEvent(event);
