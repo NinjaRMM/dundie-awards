@@ -46,117 +46,141 @@ title Give Dundie Awards to Organization
 
 
 #CONTROLLER
+participant User
+participant AwardController
+participant AwardService
+
+participant OrganizationService
+participant OrganizationRepository
+
+
+
+participant EmployeeService
+
+
+participant EmployeeRepository
+
+participant AwardOperationLogService
+
+
+participant AwardCache
+participant MessageBroker
+
+participant SYSTEM.LOG
+
+participant ActivityRepository
+
+participant ActivityService
+
+
+
+participant StreamProcessor
+
+
+
+
+
+
+
+
+
+
 User->AwardController: /give-dundie-awards/{organizationId}
 alt #a3001f Organization is valid
-AwardController->AwardController: Bean validate \n@ValidOrganizationId, \n@BlockedOrganizationId
+AwardController->AwardController: Bean validate \n@BlockedOrganizationId
 AwardController->OrganizationService: isBlocked(organizationId)\nexistsOrganization(organizationId)
     AwardController->AwardController: generate Request UUID
     AwardController->AwardService: giveDundieAwards(UUID,long organizationId)
-    AwardService->EmployeeService: getEmployeesIdsByOrganization(long organizationId)
-    EmployeeService->AwardService:List<long> ids
-    AwardService->AwardService:chunkIntoBatches(List<long>)
-    loop for each List<long> batch in batches
-        AwardService->EmployeeService: addDundieAwardToEmployees(batch)
-        EmployeeService->EmployeeRepository: increaseAwardsToEmployees(List<long>)
-        AwardService->AwardBatchLogService: saveAwardBatchLogs(UUID,List<long>)
-    end
-    AwardService->OrganizationService:blockOrganization(UUID,organizationId)
+    group preventiveBlock @Transaction
+    AwardService->AwardService:preventiveBlockOrganizationId(uuid, organizationId)
+    AwardService->OrganizationService:block(uuid, organizationId)
     OrganizationService->OrganizationRepository:blockOrganizationById(UUID,organizationId)\nChange:\norganization.blocked:true\norganization.blocked_by:UUID
-    AwardService->AwardCache: increseAwards(totalAwards)
+    end
+    group @Transaction
+    AwardService->EmployeeService:fetchEmployeeRollbackData(uuid, organizationId)
+    EmployeeService->AwardService:String rollbackData
+AwardService->AwardOperationLogService:createAwardOperationLog(uuid, rollbackData)
+AwardService->EmployeeService:addDundieAwardToEmployees(uuid, organizationId)
+EmployeeService->EmployeeRepository:increaseAwardsToEmployeesNative(organizationId)
+AwardService<-EmployeeRepository:totalUpdatedRecords
+    end
     AwardService->MessageBroker: publish(AWARD_ORGANIZATION_SUCCESS_EVENT[UUID, instant, totalAffectedEmployees, totalAwards])
-    AwardService->AwardController: Success    
+    AwardService->AwardController:Success (log totalUpdatedRecords)
     AwardController->User: Ok 200: \nAwarded Organization
 else Organization is blocked
-    AwardController->User: Error 500: \nOrganization is blocked
+    AwardController->User: Error 400: \nThe organization is blocked\n and cannot perform this operation.
 else Organization is blocked
-    AwardController->User: Error 404: \nOrganization ID is not Valid
+    AwardController->User: Error 404: \nOrganization with id: \n{organizationId} not found
+else Conflict
+    AwardController->User: Error 409: \nConcurrent modification detected. Try again later.   
 end
 
 
-MessageBroker-->StreamProcessor:process(AWARD_ORGANIZATION_SUCCESS_EVENT[UUID, instant, totalAffectedEmployees, totalAwards])
-StreamProcessor->ActivityService:handleAwardOrganizationSuccess(AWARD_ORGANIZATION_SUCCESS_EVENT)
+note over AwardCache, MessageBroker: Start Async process
+MessageBroker-->StreamProcessor:process(AWARD_ORGANIZATION_SUCCESS_EVENT[UUID, instant, totalAffectedEmployees, totalAwards, organization])
+StreamProcessor->ActivityService:handleAwardOrganizationSuccessEvent(AWARD_ORGANIZATION_SUCCESS_EVENT)
 
 # REPEATABLE SAVE ACTIVITY
-ActivityService->ActivityService:repeatableSaveActivity(UUID)
+ActivityService->ActivityService:processActivityCreation(event)
 group #1f77b4 repeatableSaveActivity(UUID) #white
-    ActivityService->ActivityService: toActivity(AWARD_ORGANIZATION_SUCCESS_EVENT)
     loop Retry until success or ENV{retrySaveActivitiesMaxAttempts}
-        ActivityService->ActivityService: await(attempt * ENV{timeToWaitRetry})
         alt Activity save success
-            ActivityService->ActivityRepository: saveActivity(Activity)
-            ActivityService->MessageBroker: publish(SAVE_ACTIVITY_AWARD_ORGANIZATION_SUCCESS_EVENT[UUID, instant, Activity])
+          group finalizeActivityTransaction(uuid,totalAwards, activity, organization, event)
+              ActivityService->ActivityRepository:activityRepository.save(activity)
+  ActivityService->AwardOperationLogService:cleanAwardBatchLogs(UUID)
+  ActivityService->OrganizationService:unblock(uuid, organization)
+              ActivityService->MessageBroker:publishSaveActivityAwardOrganizationSuccessEvent(uuid,activity,totalAwards, organization)
+          end
         else Retry save failure
             ActivityService->ActivityService: increaseAttempt
-            ActivityService->MessageBroker: publish(SAVE_ACTIVITY_AWARD_ORGANIZATION_RETRY_EVENT[UUID, instant, attempt, Activity])
+        ActivityService->ActivityService: await(attempt * ENV{timeToWaitRetry})
+            ActivityService->MessageBroker:publishSaveActivityAwardOrganizationRetryEvent(uuid, totalAwards, attempt, activity, organization)
         else Reach max attempts: ENV{retrySaveActivitiesMaxAttempts}
-            ActivityService->MessageBroker: publish(SAVE_ACTIVITY_AWARD_ORGANIZATION_FAILURE_EVENT[UUID, instant, Activity])
+            ActivityService->MessageBroker:publishSaveActivityAwardOrganizationFailureEvent(uuid, totalAwards, activity, organization)
         end
     end
 end
 
 
-MessageBroker-->StreamProcessor:process(SAVE_ACTIVITY_AWARD_ORGANIZATION_RETRY_EVENT[UUID, instant, attempt, Activity])
-StreamProcessor->ActivityService:handleSaveActivityAwardOrganizationRetry(SAVE_ACTIVITY_AWARD_ORGANIZATION_RETRY_EVENT)
-ActivityService->ActivityService:repeatableSaveActivity(UUID)
+MessageBroker-->StreamProcessor:process(SAVE_ACTIVITY_AWARD_ORGANIZATION_RETRY_EVENT[uuid, totalAwards, attempt, activity, organization])
+StreamProcessor->ActivityService:handleSaveActivityAwardOrganizationRetryEvent(SAVE_ACTIVITY_AWARD_ORGANIZATION_RETRY_EVENT)
 ref over ActivityService, MessageBroker #D4E4F0: Repeatable Save Activity Process
 
 
-MessageBroker-->StreamProcessor: process(SAVE_ACTIVITY_AWARD_ORGANIZATION_SUCCESS_EVENT[UUID, instant, Activity])
-StreamProcessor->AwardService: handleSuccessSaveActivityAwardOrganization(SAVE_ACTIVITY_AWARD_ORGANIZATION_SUCCESS_EVENT)
-AwardService->OrganizationService:retryableUnblockOrganization(UUID,organizationId)
-AwardService->AwardCache: decreaseAwards(totalAwards)
+MessageBroker-->StreamProcessor:process(SAVE_ACTIVITY_AWARD_ORGANIZATION_SUCCESS_EVENT[UUID, instant, Activity, totalAwards, organization])
+StreamProcessor->AwardService:handleSaveActivityAwardOrganizationSuccessEvent(SAVE_ACTIVITY_AWARD_ORGANIZATION_SUCCESS_EVENT)
+AwardService->AwardCache:addAwards(totalAwards)
+note over AwardCache, MessageBroker: End
 
 
-# REPEATABLE ORGANIZATION UNBLOCK
-group #ff7f0e repeatableUnblockOrganization(UUID) #white
-    loop Retry until success or ENV{retryUnblockOrganizationsMaxAttempts}
-        OrganizationService->OrganizationService: await(attempt * ENV{timeToWaitRetry})
-        alt Organization unblock success
-            OrganizationService->OrganizationRepository: unblockOrganization(Organization)
-            OrganizationService->MessageBroker: publish(UNBLOCK_ORGANIZATION_SUCCESS_EVENT[UUID, instant, Organization])
-        else Retry unblock failure
-            OrganizationService->OrganizationService: increaseAttempt
-            OrganizationService->MessageBroker: publish(UNBLOCK_ORGANIZATION_RETRY_EVENT[UUID, instant, attempt, Organization])
-        else Reach max attempts: ENV{retryUnblockOrganizationsMaxAttempts}
-            OrganizationService->MessageBroker: publish(UNBLOCK_ORGANIZATION_FAILURE_EVENT[UUID, instant, Organization])
-        end
-    end
-end
 
-MessageBroker-->StreamProcessor: process(UNBLOCK_ORGANIZATION_RETRY_EVENT[UUID, instant, attempt, Organization])
-StreamProcessor->OrganizationService: handleUnblockOrganizationRetry(UNBLOCK_ORGANIZATION_RETRY_EVENT)
-ref over OrganizationService, MessageBroker #FCE6D0: Repeatable Organization Unblock Process
 
-MessageBroker-->StreamProcessor: process(UNBLOCK_ORGANIZATION_SUCCESS_EVENT[UUID, instant, Organization])
-StreamProcessor->OrganizationService: handleUnblockOrganizationSuccess(UNBLOCK_ORGANIZATION_SUCCESS_EVENT)
-OrganizationService->AwardBatchLogService:cleanAwardBatchLogs(UUID)
 
-MessageBroker-->StreamProcessor: process(UNBLOCK_ORGANIZATION_FAILURE_EVENT[UUID, instant, Organization])
-StreamProcessor->OrganizationService: handleUnblockOrganizationFailure(UNBLOCK_ORGANIZATION_FAILURE_EVENT)
-OrganizationService->FailureProcessService: logFailureProcess(UUID)
 
 
 
 MessageBroker-->StreamProcessor: process(SAVE_ACTIVITY_AWARD_ORGANIZATION_FAILURE_EVENT)
 StreamProcessor->AwardService: handleSaveActivityAwardOrganizationFailure(SAVE_ACTIVITY_AWARD_ORGANIZATION_FAILURE_EVENT)
-
+AwardService->AwardService: processRollback(event)
 
 # REPEATABLE ROLLBACK
 group #2f2e7b repeatableRollback(UUID) #white
     loop Retry until success or ENV{retryAwardRollbackMaxAttempts}
         alt Award rollback success
-            AwardService->AwardService: await(attempt * ENV{timeToWaitRetry})
             group rollback(UUID)
-                AwardService->AwardBatchLogService: getAwardBatchLogs(UUID)
-                AwardRepository->AwardService: List<BatchLogs>
-                loop for each List<long> batch in batches
-                    AwardService->EmployeeService: removeDundieAwardToEmployees(batch)
-                    EmployeeService->EmployeeRepository: decreaseAwardsToEmployees(List<long>)
-                end
-            end
+                AwardService->AwardOperationLogService:getAwardOperationLog(uuid)
+                AwardService->EmployeeService:removeDundieAwardToEmployees(uuid, organization.getId())
+                EmployeeService->EmployeeRepository: decreaseAwardsToEmployees(List<long>)
+                AwardService->EmployeeService:fetchEmployeeComparisonData(uuid, organization.getId())
+                AwardService->AwardService:findDifferences(rollbackData, comparisonData) and log warn
+                AwardService->AwardOperationLogService:cleanAwardOperationLog(uuid)
+                AwardService->OrganizationService:unblock(uuid, organization)
+                
             AwardService->MessageBroker: publish(AWARD_ORGANIZATION_ROLLBACK_SUCCESS_EVENT[UUID, instant, totalAffectedEmployees, totalAwards])
+            end
         else Award rollback failure
             AwardService->AwardService: increaseAttempt
+            AwardService->AwardService: await(attempt * ENV{timeToWaitRetry})
             AwardService->MessageBroker: publish(AWARD_ORGANIZATION_ROLLBACK_RETRY_EVENT[UUID, instant, attempt])
         else Reach max attempts: ENV{retryAwardRollbackMaxAttempts}
             AwardService->MessageBroker: publish(AWARD_ORGANIZATION_ROLLBACK_FAILURE_EVENT[UUID, instant])
@@ -171,13 +195,15 @@ ref over AwardService, MessageBroker #D6D5E5 : Repeatable Rollback Process
 
 MessageBroker-->StreamProcessor: process(AWARD_ORGANIZATION_ROLLBACK_SUCCESS_EVENT)
 StreamProcessor->AwardService: handleAwardOrganizationRollBackSuccess(AWARD_ORGANIZATION_ROLLBACK_SUCCESS_EVENT)
-AwardService->OrganizationService:retryableUnblockOrganization(UUID,organizationId)
-ref over OrganizationService,MessageBroker #FCE6D0:Referencing Organization Unblock Flow
 AwardService->AwardCache: decreaseAwards(totalAwards)
+note over AwardCache, MessageBroker: End
+
 
 MessageBroker-->StreamProcessor: process(AWARD_ORGANIZATION_ROLLBACK_FAILURE_EVENT[UUID, instant])
 StreamProcessor->AwardService: handleAwardOrganizationRollbackFailure(AWARD_ORGANIZATION_ROLLBACK_FAILURE_EVENT)
-AwardService->FailureProcessService:logFailureProcess(UUID)
+AwardService->SYSTEM.LOG:logFailureProcess(UUID)
+note over ActivityRepository, SYSTEM.LOG: End
+
 
 ```
 

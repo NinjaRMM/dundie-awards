@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body>
+<div th:fragment="content">
+<div class="modal fade" id="readmeModal" tabindex="-1" role="dialog" aria-labelledby="readmeModalLabel" aria-hidden="true">
+  <div class="modal-dialog" style="max-width:90%;" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="readmeModalLabel">README</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h4>How the Application Works:</h4>
+        <p>This application manages and distributes Dundie Awards across organizations and their employees. It can handle big data: For the demo, I based my samples on Walmart, the most prominent organization in terms of employee numbers, with around 2.3 million. So, I took samples of 3 million.</p>
+        <p>In demo mode, Frajola and Tom employees are not listed (each with 3M records). The Message Broker is a limitation to scale the application, which now works only inside the application context and should move to a message solution like Kafka or something similar. The database is not persistent. Every 7 seconds, the broker distributes the top queued message; this time, it is configurable and is high to demonstrate the functionalities.</p>
+        <p>The retry mechanism allows scaling. It removes responsibility from within the application context and distributes it between instances through retry events.</p>
+
+        <h4>Implementation Details:</h4>
+        <p>Each request receives a UUID to track goals, which is propagated on log events and rollback records in the database. The App blocks organization on the first transaction to control concurrency. I used JPA optimistic lock to control the organization. Only unblocked organizations can request awards.</p>
+        <p>On the second transaction, before increasing employee awards, the App retrieves the rollback data, a concatenated string of |id,dundie_award|, and saves it on the award_operation_log table, identified with the request UUID. I adopted this strategy based on performance: A 3M organization will generate a Lob String of ~28Mb. Retrieving concatenated information was faster than any other solution, and Java can parse it faster.</p>
+        <p>To add the Dundie award, I updated the respective employee field, filtering by organization ID (indexed) and increasing it to plus one. The App publishes a successful event and finishes the request.</p>
+        <p>The Message Broker uses a blocking queue as a topic and a scheduler to fire the top head of the queue. A centralized Stream Processor consumes Events and forwards them to service handlers. I implemented a retry/backoff functionality that embeds the failure data within the event and rethrows it, allowing a distributed retry policy.</p>
+        <p>During the persistence of the ACK Activity, this retry mechanism acts. If it succeeds, the App cleans the rollback data, unblocks the organization, and fires an event of success that updates and increases the award cache. If it fails, the App will fire a rollback event.</p>
+        <p>Rollback also uses the same retry/backoff logic. The rollback will retrieve rollback data (the saved concatenated string from the award_operation_log table), decrease awards by organization ID, and query a concatenated string again (after the decrease) to perform the comparison. It will also clean rollback data and unblock the organization, publishing a success event that updates and decreases the award cache.</p>
+        <p>Most of the queries use native queries; I implemented many performance tests in the performance test package to choose them. To run it, reenable commenting the @Disabled annotation. App coverage is now around 80%. An activity diagram documents the flow described above.</p>
+
+        <h4>Configurations:</h4>
+        <ul>
+          <li><strong>messageProcessingIntervalMs:</strong> Rate time used by the message broker to process the head message of the queue.</li>
+          <li><strong>enableTestBehavior:</strong> Enables demo mode (where a set of preconfigured organizations, a high data volume of employees, and exceptions occur to test the retry and rollback mechanism).</li>
+          <li><strong>retrySaveActivity.maxAttempts:</strong> Defines the attempts to save the ACK Activity.</li>
+          <li><strong>retrySaveActivity.backoffDelayMs:</strong> The backoff in ms (backoff * attempt).</li>
+          <li><strong>retryRollback.maxAttempts:</strong> Defines the attempts to try the rollback.</li>
+          <li><strong>retryRollback.backoffDelayMs:</strong> The backoff in ms (backoff * attempt).</li>
+        </ul>
+
+        <h4>Suggested Improvements:</h4>
+        <ul>
+          <li>Move to a centralized message broker implementation that allows scaling.</li>
+          <li>Move to a persistent database.</li>
+          <li>Implement a web socket to trigger screen changes, avoiding recharging its fragments on a setTimeOut basis.</li>
+          <li>
+            Implement a controller to unblock an organization that fails on rollback by the following logic:
+            <ol>
+              <li>Verify if ACK Activity was saved:
+                <ul>
+                  <li>If yes, then AWARD_ORGANIZATION_SUCCESS_EVENT was fired.</li>
+                  <li>Else, fire it and stop.</li>
+                </ul>
+              </li>
+              <li>Verify if award_operation_logs exist for the organization ID:
+                <ul>
+                  <li>If yes, then award_operation_logs were not cleaned:
+                    <ul>
+                      <li>If ACK activity exists, clean award_operation_logs.</li>
+                      <li>Else, fire SAVE_ACTIVITY_AWARD_ORGANIZATION_FAILURE_EVENT.</li>
+                    </ul>
+                  </li>
+                  <li>If no, then there are no award_operation_logs:
+                    <ul>
+                      <li>If ACK activity exists, unblock the organization.</li>
+                      <li>Else, rollback was done; unblock the organization.</li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ol>
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</body>
+</html>

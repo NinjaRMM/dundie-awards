@@ -37,6 +37,18 @@
     </div>
 </div>
 
+<!-- footer -->
+<div class="fixed-bottom text-center mb-3">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#readmeModal">
+        README
+    </button>
+</div>
+
+<!-- modal -->
+<div id="modal"></div>
+
+
+
 <!-- Include Bootstrap JS and Popper.js -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"
         integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
@@ -110,6 +122,16 @@
               setTimeout(getMessages, 1000);
           });
       };
+      
+      function getModal() {
+  		$.get({
+              url: '/modal/view',
+              success: (response) => {
+              }
+          }).done((data) => {
+              $('#modal').html(data);
+          });
+  	}
 
      $(document).ready(() => {
     	 getTotalDundieAwards();
@@ -117,6 +139,7 @@
     	 getEmployees();
     	 getActivities();
     	 getMessages();
+    	 getModal();
      });
      
 </script>
