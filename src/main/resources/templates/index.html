@@ -1,0 +1,147 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Employees and Awards</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+	
+    <style>
+        body {
+        	width: 99.5%;
+            padding: 2px;
+        }
+    </style>
+</head>
+<body>
+<div class="justify-content-end row">
+	<div id="awards"></div>
+</div>
+
+<div class="row pb-5">
+    <div class="col-md-12 px-3">
+        <div id="queueMessages"></div>
+    </div>
+    
+</div>
+<div class="row">
+    <div class="col-md-4 px-3">
+        <div id="organizations"></div>
+    </div>
+    <div class="col-md-4 px-3">
+		<div id="employees"></div>
+    </div>
+    <div class="col-md-4 px-3">
+        <div id="activities"></div>
+    </div>
+</div>
+
+<!-- footer -->
+<div class="fixed-bottom text-center mb-3">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#readmeModal">
+        README
+    </button>
+</div>
+
+<!-- modal -->
+<div id="modal"></div>
+
+
+
+<!-- Include Bootstrap JS and Popper.js -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+<script th:if="${isDev}" src="http://localhost:35729/livereload.js"></script>
+<script>
+
+	function getTotalDundieAwards() {
+		$.get({
+            url: '/awards/view',
+            success: (response) => {
+            }
+        }).done((data) => {
+            $('#awards').html(data);
+        });
+	}
+	
+	$('#organizations').on('click', '.awardButton', function () {
+	    const url = '/give-dundie-awards/' + $(this).val();
+	    $.post({ url }).done(() => {
+	        getOrganizations();
+	        getEmployees();
+	    });
+	});
+	
+	function getOrganizations() {
+     	$.get({
+             url: '/organizations/view'
+         }).done((data) => {
+             $('#organizations').html(data);
+         })
+     };
+	
+     function getEmployees() {
+     	$.get({
+             url: '/employees/view'
+         }).done((data) => {
+             $('#employees').html(data);
+         });
+     };
+     
+      function getActivities() {
+          $.get({
+              url: '/activities/view',
+              success: (response) => {
+              }
+          }).done((data) => {
+              $('#activities').html(data);
+              getOrganizations();
+              getEmployees();
+              getTotalDundieAwards();
+          }).always(() => {
+              setTimeout(getActivities, 1000);
+          });
+      };
+      
+      function getMessages() {
+          $.get({
+              url: '/messages/view',
+              success: (response) => {
+              }
+          }).done((data) => {
+              $('#queueMessages').html(data);
+          }).always(() => {
+              setTimeout(getMessages, 1000);
+          });
+      };
+      
+      function getModal() {
+  		$.get({
+              url: '/modal/view',
+              success: (response) => {
+              }
+          }).done((data) => {
+              $('#modal').html(data);
+          });
+  	}
+
+     $(document).ready(() => {
+    	 getTotalDundieAwards();
+    	 getOrganizations();
+    	 getEmployees();
+    	 getActivities();
+    	 getMessages();
+    	 getModal();
+     });
+     
+</script>
+</body>
+</html>

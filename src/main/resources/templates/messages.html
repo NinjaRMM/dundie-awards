@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <style>
+        .wrap-text {
+            word-wrap: break-word;
+            white-space: normal;
+        }
+    </style>
+</head>
+<body>
+<div th:fragment="content">
+    <div th:switch="${queueMessages}" class="my-1">
+        <h4 class="mb-1 text-center">Queue Messages</h4>
+        <table class="table table-striped table-sm text-sm">
+            <thead class="thead-dark">
+            <tr>
+                <th class="col-md-3 text-center">UUID</th>
+                <th class="col-md-3 text-center">Occurred At</th>
+                <th class="col-md-3 text-center">Type</th>
+                <th class="col-md-3 text-center">Event</th>
+            </tr>
+            </thead>
+            <tbody th:case="null">
+            	<tr><td class="text-center" colspan=4>No Messages</td></tr>
+            </tbody>
+            <tbody th:case="*">
+            <tr th:each="event : ${queueMessages}">
+                <td class="col-md-3 text-center" th:text="${event.uuid}"></td>
+                <td class="col-md-3 "><span th:text="${#temporals.format(event.occurredAt, 'yyyy-MM-dd HH:mm:ss.SSS')}"></span></td>
+                <td class="col-md-3 text-break" th:text="${event.eventType}"></td>
+                <td class="col-md-3 text-break small" th:text="${event.toJson}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

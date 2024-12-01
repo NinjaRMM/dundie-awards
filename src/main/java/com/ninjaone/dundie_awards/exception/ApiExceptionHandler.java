@@ -1,0 +1,214 @@
+package com.ninjaone.dundie_awards.exception;
+
+import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.notFoundException;
+import static com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.notValidException;
+import static java.lang.String.format;
+import static java.util.Optional.ofNullable;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.function.Function;
+
+import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.PessimisticLockingFailureException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.validation.method.ParameterValidationResult;
+import org.springframework.web.ErrorResponseException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import com.ninjaone.dundie_awards.exception.ApiExceptionHandler.ExceptionUtil.Error;
+
+import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@ControllerAdvice
+public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
+
+	
+	/*
+	 * Customize ResponseEntityExceptionHandler handler
+	 * to provide more info in case of Bean Validation exception 
+	 */
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        log.warn("Validation error: {}", ex.getMessage());
+        List<Error> errors = ex.getBindingResult().getFieldErrors()
+                .stream()
+                .map(error -> Error.builder()
+                        .field(error.getField())
+                        .message(error.getDefaultMessage())
+                        .build())
+                .toList();
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST, "Invalid request content.");
+        problemDetail.setProperty("errors", errors);
+        return new ResponseEntity<>(problemDetail, headers, BAD_REQUEST);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        log.warn("Message not readable: {}", ex.getMessage());
+        String error = ofNullable(ex.getMessage())
+                .orElse("Invalid JSON input. Unable to parse the provided request.");
+        List<Error> errors = List.of(
+                Error.builder()
+                        .field("requestBody")
+                        .message(error)
+                        .build()
+        );
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST, "Failed to read request");
+        problemDetail.setProperty("errors", errors);
+        return new ResponseEntity<>(problemDetail, headers, BAD_REQUEST);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHandlerMethodValidationException(
+            HandlerMethodValidationException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        log.warn("Handler validation failed: {}", ex.getMessage());
+        List<ExceptionUtil.Error> errors = new ArrayList<>();
+        for (ParameterValidationResult result : ex.getAllValidationResults()) {
+            String field = result.getMethodParameter().getParameterName();
+            if (field == null) {
+                field = result.getMethodParameter().toString();
+            }
+            for (Object resolvableError : result.getResolvableErrors()) {
+                String message = ((DefaultMessageSourceResolvable) resolvableError).getDefaultMessage();
+                ExceptionUtil.Error error = ExceptionUtil.Error.builder()
+                        .field(field)
+                        .message(message)
+                        .build();
+                errors.add(error);
+            }
+        }
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failure");
+        problemDetail.setProperty("errors", errors);
+        return handleExceptionInternal(ex, problemDetail, headers, status, request);
+    }
+
+	
+	/*
+	 * Persistence layer exceptions mapped to Http status errors exceptions
+	 */
+	
+    //will occur in concurrency block organization
+    @ExceptionHandler({ObjectOptimisticLockingFailureException.class})
+    public ResponseEntity<Object> handleOptimisticLockingFailure(Exception ex, WebRequest request) {
+        log.warn("Optimistic lock exception: {}", ex.getMessage());
+        String detailMessage = "Concurrent modification detected. Try again later.";
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, detailMessage);
+        problemDetail.setProperty("errors", List.of(
+                ApiExceptionHandler.ExceptionUtil.Error.builder()
+                        .field("organization")
+                        .message(detailMessage)
+                        .build()
+        ));
+        return new ResponseEntity<>(problemDetail, HttpStatus.CONFLICT);
+    }
+    
+    //will occur in concurrency increase dundie awards on employees 
+    //(if organization has too many it will take more than default 1sec to lock timeout)
+    //in my 3M example will take 11 sec.
+    @ExceptionHandler(PessimisticLockingFailureException.class)
+    public ResponseEntity<Object> handlePessimisticLockingFailure(PessimisticLockingFailureException ex, WebRequest request) {
+        log.warn("Pessimistic locking failure: {}", ex.getMessage());
+
+        String detailMessage = "The resource is currently locked by another transaction. Please try again later.";
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, detailMessage);
+        problemDetail.setProperty("errors", List.of(
+                ApiExceptionHandler.ExceptionUtil.Error.builder()
+                        .field("database")
+                        .message(detailMessage)
+                        .build()
+        ));
+
+        return new ResponseEntity<>(problemDetail, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<Object> handleDataAccessException(DataAccessException ex, WebRequest request) {
+        log.error("Database access error: {}", ex.getMessage(), ex);
+        String detailMessage = ofNullable(ex.getRootCause())
+                .map(Throwable::getMessage)
+                .orElse("A database error occurred.");
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(INTERNAL_SERVER_ERROR, detailMessage);
+        problemDetail.setProperty("errors", List.of(
+                Error.builder()
+                        .field("database")
+                        .message(detailMessage)
+                        .build()
+        ));
+        return new ResponseEntity<>(problemDetail, INTERNAL_SERVER_ERROR);
+    }
+
+	/*
+	 * Service layer exceptions mapped to Http status errors exceptions
+	 */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ErrorResponseException handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.warn("Illegal argument exception: {}", ex.getMessage());
+        return notValidException.apply(ex.getMessage());
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ErrorResponseException handleNoSuchElementException(NoSuchElementException ex) {
+        log.warn("No such element found: {}", ex.getMessage());
+        return notFoundException.apply(ex.getMessage());
+    }
+
+	/**
+	* Utility class to provide customization over {@link ErrorResponseException}.
+	*/
+    public static class ExceptionUtil {
+
+        @Builder
+		public static record Error(String field, String message) { }
+
+        public static Function<String, ErrorResponseException> notFoundException =
+                detailMessage -> {
+                    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND, detailMessage);
+                    problemDetail.setProperty("errors", null);
+                    return new ErrorResponseException(
+                            HttpStatus.NOT_FOUND,
+                            problemDetail,
+                            null
+                    );
+                };
+
+        public static Function<String, ErrorResponseException> notValidException =
+                detailMessage -> {
+                    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST, detailMessage);
+                    problemDetail.setProperty("errors", null);
+                    return new ErrorResponseException(
+                            HttpStatus.BAD_REQUEST,
+                            problemDetail,
+                            null
+                    );
+                };
+
+        public static Function<Long, NoSuchElementException> employeeNotFoundException =
+                id -> new NoSuchElementException(format("Employee with id: %d not found", id));
+
+        public static Function<Long, NoSuchElementException> organizationNotFoundException =
+                id -> new NoSuchElementException(format("Organization with id: %d not found", id));
+
+    }
+
+}

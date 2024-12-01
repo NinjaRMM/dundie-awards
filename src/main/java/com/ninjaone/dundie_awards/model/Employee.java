@@ -1,14 +1,41 @@
 package com.ninjaone.dundie_awards.model;
 
-import jakarta.persistence.*;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Data
+@Builder(toBuilder = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "employees")
+@Table(name = "employees", indexes = {
+    @Index(name = "idx_employee_organization_id", columnList = "organization_id")
+})
 public class Employee {
 
+	@EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+	@Setter(AccessLevel.NONE)
+    private Long id;
 
     @Column(name = "first_name")
     private String firstName;
@@ -17,59 +44,17 @@ public class Employee {
     private String lastName;
 
     @Column(name = "dundie_awards")
-    private Integer dundieAwards;
+    private int dundieAwards;
 
-    @ManyToOne
+    @NotFound(action = NotFoundAction.IGNORE)
+	@ManyToOne
+	@JoinColumn(name = "organization_id")
     private Organization organization;
 
-    public Employee() {
-
-    }
-
     public Employee(String firstName, String lastName, Organization organization) {
-        super();
         this.firstName = firstName;
         this.lastName = lastName;
         this.organization = organization;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public Organization getOrganization() {
-        return organization;
-    }
-
-    public void setOrganization(Organization organization) {
-        this.organization = organization;
-    }
-
-    public void setDundieAwards(int dundieAwards){
-        this.dundieAwards = dundieAwards;
-    }
-
-    public Integer getDundieAwards(){
-        return dundieAwards;
-    }
 }
