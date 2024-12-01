@@ -1,6 +1,9 @@
 package com.ninjaone.dundie_awards;
 
+import static com.ninjaone.dundie_awards.model.Organization.FRAJOLA;
 import static com.ninjaone.dundie_awards.model.Organization.GARFIELD;
+import static com.ninjaone.dundie_awards.model.Organization.HELLO_KITTY;
+import static com.ninjaone.dundie_awards.model.Organization.SQUANCHY;
 import static com.ninjaone.dundie_awards.model.Organization.TOM;
 
 import java.util.List;
@@ -27,7 +30,7 @@ public class DataLoader implements CommandLineRunner {
     private final EmployeeRepository employeeRepository;
     private final OrganizationRepository organizationRepository;
     private final AwardsCache awardsCache;
-    private final MessageBroker messageBroker;
+    private final AppProperties appProperties;
 
     @Override
     public void run(String... args) {
@@ -39,9 +42,11 @@ public class DataLoader implements CommandLineRunner {
         	
         	List<Organization> organizations = List.of(
         			Organization.builder().name("Pikashu").blocked(false).blockedBy(null).build(),
-        			Organization.builder().name("Squanchy").blocked(false).blockedBy(null).build(),
+        			SQUANCHY,
+        			GARFIELD,
+        			FRAJOLA,
         			TOM,
-        			GARFIELD
+        			HELLO_KITTY
         			);
         	organizationRepository.saveAll(organizations);
 
@@ -67,7 +72,6 @@ public class DataLoader implements CommandLineRunner {
         	        new Employee("Meredith", "Palmer", organizations.get(2))
         	);
         	employeeRepository.saveAll(tomEmployees);
-
         }
 
         int totalAwards = employeeRepository.findAll().stream()
@@ -75,26 +79,35 @@ public class DataLoader implements CommandLineRunner {
                 .sum();
         
         this.awardsCache.setTotalAwards(totalAwards);
+
         
-        //load to sample
-        //can't keep it during development cos each restart takes too long
-//        loadThreeMilionsRecordsToGarfieldOrganization();
+        loadEmployesRecordsToOrganization(1,GARFIELD);
+        loadEmployesRecordsToOrganization(2,HELLO_KITTY);
+        
+        //big data ones
+        if(appProperties.enableTestBehavior()) {
+        	loadEmployesRecordsToOrganization(3_000_000,FRAJOLA);
+        	loadEmployesRecordsToOrganization(3_000_000,TOM);
+        }else {
+        	loadEmployesRecordsToOrganization(3,FRAJOLA);
+            loadEmployesRecordsToOrganization(2,TOM);
+        }
         
     }
     
 
-    private void loadThreeMilionsRecordsToGarfieldOrganization() {
+    private void loadEmployesRecordsToOrganization(Integer quantity, Organization organization) {
     	
     	//The Office characters names ;)
     	final String[] FIRST_NAMES = {"Michael", "Jim", "Pam", "Dwight", "Ryan", "Angela", "Andy", "Kelly", "Oscar", "Stanley"};
     	final String[] LAST_NAMES = {"Scott", "Halpert", "Beesly", "Schrute", "Howard", "Martin", "Bernard", "Kapoor", "Martinez", "Hudson"};
     	
     	long start = System.currentTimeMillis();
-        log.info("Started loading employees to Garfield Organization...");
+        log.info("Started loading employees to {} Organization...",organization.getName());
 
         Random random = new Random();
         final int[] totalAwards = {0};
-        List<Employee> employees = LongStream.rangeClosed(1, 3_000_000)
+        List<Employee> employees = LongStream.rangeClosed(1, quantity)
                 .mapToObj(id ->{ 
                 	int dundieAwards = ThreadLocalRandom.current().nextInt(0, 13);
                     totalAwards[0] += dundieAwards;
@@ -102,7 +115,7 @@ public class DataLoader implements CommandLineRunner {
                         .firstName(FIRST_NAMES[random.nextInt(FIRST_NAMES.length)])
                         .lastName(LAST_NAMES[random.nextInt(LAST_NAMES.length)])
                         .dundieAwards(dundieAwards)
-                        .organization(GARFIELD)
+                        .organization(organization)
                         .build();})
                 .toList();
         
@@ -112,7 +125,7 @@ public class DataLoader implements CommandLineRunner {
         this.awardsCache.setTotalAwards(awardsCache.getTotalAwards()+totalAwards[0]);
         
         long end = System.currentTimeMillis();
-        log.info("Completed loading employees to Garfield Organization in {} seconds", String.format("%.2f", (end - start) / 1000.0));
+        log.info("Completed loading employees to {} Organization in {} seconds", organization.getName(), String.format("%.2f", (end - start) / 1000.0));
     
     }
     

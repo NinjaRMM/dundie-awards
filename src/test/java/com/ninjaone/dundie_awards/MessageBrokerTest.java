@@ -149,4 +149,64 @@ class MessageBrokerTest {
         assertThat(publishedEvent.activity()).isEqualTo(activity);
         assertThat(publishedEvent.organization()).isEqualTo(organization);
     }
+    
+    @Test
+    void shouldPublishAwardOrganizationRollbackSuccessEvent() {
+        UUID uuid = UUID.randomUUID();
+        Integer totalAwards = 150;
+        Activity activity = new Activity();
+        Organization organization = new Organization();
+
+        messageBroker.publishAwardOrganizationRollbackSuccessEvent(uuid, activity, totalAwards, organization);
+        messageBroker.processQueue();
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        then(eventPublisher).should().publishEvent(eventCaptor.capture());
+
+        Event publishedEvent = eventCaptor.getValue();
+        assertThat(publishedEvent.uuid()).isEqualTo(uuid);
+        assertThat(publishedEvent.totalAwards()).isEqualTo(totalAwards);
+        assertThat(publishedEvent.activity()).isEqualTo(activity);
+        assertThat(publishedEvent.organization()).isEqualTo(organization);
+    }
+
+    @Test
+    void shouldPublishAwardOrganizationRollbackRetryEvent() {
+        UUID uuid = UUID.randomUUID();
+        Integer totalAwards = 150;
+        Integer attempt = 2;
+        Activity activity = new Activity();
+        Organization organization = new Organization();
+
+        messageBroker.publishAwardOrganizationRollbackRetryEvent(uuid, totalAwards, attempt, activity, organization);
+        messageBroker.processQueue();
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        then(eventPublisher).should().publishEvent(eventCaptor.capture());
+
+        Event publishedEvent = eventCaptor.getValue();
+        assertThat(publishedEvent.uuid()).isEqualTo(uuid);
+        assertThat(publishedEvent.totalAwards()).isEqualTo(totalAwards);
+        assertThat(publishedEvent.attempt()).isEqualTo(attempt);
+        assertThat(publishedEvent.activity()).isEqualTo(activity);
+        assertThat(publishedEvent.organization()).isEqualTo(organization);
+    }
+
+    @Test
+    void shouldPublishAwardOrganizationRollbackFailureEvent() {
+        UUID uuid = UUID.randomUUID();
+        Integer totalAwards = 150;
+        Activity activity = new Activity();
+        Organization organization = new Organization();
+
+        messageBroker.publishAwardOrganizationRollbackFailureEvent(uuid, totalAwards, activity, organization);
+        messageBroker.processQueue();
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        then(eventPublisher).should().publishEvent(eventCaptor.capture());
+
+        Event publishedEvent = eventCaptor.getValue();
+        assertThat(publishedEvent.uuid()).isEqualTo(uuid);
+        assertThat(publishedEvent.totalAwards()).isEqualTo(totalAwards);
+        assertThat(publishedEvent.activity()).isEqualTo(activity);
+        assertThat(publishedEvent.organization()).isEqualTo(organization);
+    }
+
 }

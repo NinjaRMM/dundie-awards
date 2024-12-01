@@ -14,10 +14,10 @@ import com.ninjaone.dundie_awards.model.Employee;
  * Queries whose performance was not good on tests where deprecated
  */
 @Repository
-public interface EmployeeRepository extends JpaRepository<Employee, Long>,EmployeeRepositoryCustomized {
+public interface EmployeeRepository extends JpaRepository<Employee, Long>,  EmployeeRepositoryCustomized {
 	
-	@Query("SELECT e FROM Employee e WHERE e.organization.id <> :organizationId")
-	List<Employee> findAllByOrganizationIdNot(@Param("organizationId") Long organizationId);
+	@Query("SELECT e FROM Employee e WHERE e.organization.id NOT IN :ids")
+	List<Employee> findAllByOrganizationIdsNotIn(@Param("ids") List<Long> ids);
 
 
     @Query(value = "SELECT e.id FROM Employee e WHERE e.organization.id = :organizationId")
@@ -31,11 +31,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>,Employ
 
     
     int countByOrganizationId(Long id);
-
-//    @Modifying
-//    @Transactional
-//    @Query(value = "UPDATE employees SET dundie_awards = dundie_awards + 1 WHERE id IN (:employeeIds)", nativeQuery = true)
-//    int increaseAwardsToEmployees(@Param("employeeIds") List<Long> employeeIds);
 
 
 	/*

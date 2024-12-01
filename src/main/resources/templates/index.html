@@ -8,18 +8,34 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 	
     <style>
-        /* Add any additional custom styles here */
         body {
-            padding: 20px;
+        	width: 99.5%;
+            padding: 2px;
         }
     </style>
 </head>
 <body>
-<div id="awards"></div>
-<div id="organizations"></div>
-<div id="employees"></div>
-<div id="activities"></div>
-<div id="queueMessages"></div>
+<div class="justify-content-end row">
+	<div id="awards"></div>
+</div>
+
+<div class="row pb-5">
+    <div class="col-md-12 px-3">
+        <div id="queueMessages"></div>
+    </div>
+    
+</div>
+<div class="row">
+    <div class="col-md-4 px-3">
+        <div id="organizations"></div>
+    </div>
+    <div class="col-md-4 px-3">
+		<div id="employees"></div>
+    </div>
+    <div class="col-md-4 px-3">
+        <div id="activities"></div>
+    </div>
+</div>
 
 <!-- Include Bootstrap JS and Popper.js -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"
@@ -44,19 +60,19 @@
         });
 	}
 	
+	$('#organizations').on('click', '.awardButton', function () {
+	    const url = '/give-dundie-awards/' + $(this).val();
+	    $.post({ url }).done(() => {
+	        getOrganizations();
+	        getEmployees();
+	    });
+	});
+	
 	function getOrganizations() {
      	$.get({
              url: '/organizations/view'
          }).done((data) => {
              $('#organizations').html(data);
-             $('.awardButton').click(function() {
-                 $.post({
-                     url: '/give-dundie-awards/' + $(this).val()
-                 }).done(() => {
-                	getOrganizations();
-                 	getEmployees();                 	
-                 });
-             });
          })
      };
 	
@@ -76,9 +92,10 @@
           }).done((data) => {
               $('#activities').html(data);
               getOrganizations();
+              getEmployees();
               getTotalDundieAwards();
           }).always(() => {
-              setTimeout(getActivities, 2000);
+              setTimeout(getActivities, 1000);
           });
       };
       
@@ -90,7 +107,7 @@
           }).done((data) => {
               $('#queueMessages').html(data);
           }).always(() => {
-              setTimeout(getMessages, 2000);
+              setTimeout(getMessages, 1000);
           });
       };
 

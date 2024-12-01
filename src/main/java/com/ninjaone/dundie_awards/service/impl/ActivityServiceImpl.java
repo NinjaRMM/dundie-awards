@@ -1,8 +1,10 @@
 package com.ninjaone.dundie_awards.service.impl;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +38,7 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
 	public List<ActivityDto> getAllActivities() {
         log.debug("getAllActivities - Fetching all activities from the database.");
-        List<ActivityDto> activities = activityRepository.findAll()
+        List<ActivityDto> activities = activityRepository.findAll(Sort.by(Sort.Direction.DESC, "occurredAt"))
                 .stream()
                 .map(ActivityDto::toDto)
                 .toList();
@@ -53,13 +55,23 @@ public class ActivityServiceImpl implements ActivityService {
         return savedActivity;
     }
     
+    
+    /*
+     * GARFIELD 		fails but recovers while retrying to save activity 
+     * FRAJOLA 			fail in all 
+     * TOM 				fail in all
+     * HELLO_KITTY 		fail in all
+     */
     //just to simulate some behavior of failures to simulate the retries or roll back
     private void simulateTestBehavior(Organization organization, Event event) {
-        if (Organization.TOM.equals(organization) && (event.calculatedAttempt() % 2 == 0)) {
+        if (Organization.GARFIELD.equals(organization) && (event.calculatedAttempt() % 2 == 0)) {
             throw new RuntimeException("Will recover from failure");
         }
-        if (Organization.GARFIELD.equals(organization)) {
-            throw new RuntimeException("Will fail until stop");
+        if (Organization.SQUANCHY.equals(organization) ||
+        		Organization.FRAJOLA.equals(organization) ||
+        		Organization.TOM.equals(organization) ||
+        		Organization.HELLO_KITTY.equals(organization)) {
+        	throw new RuntimeException("Will fail until stop");
         }
     }
 
@@ -83,6 +95,7 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public void handleAwardOrganizationSuccessEvent(Event event) {
         log.info("UUID: {} - handleAwardOrganizationSuccessEvent - Handle event: {}", event.uuid(), event.toJson());
+        createActivity(event.toActivity());
         processActivityCreation(event);
         log.info("UUID: {} - handleAwardOrganizationSuccessEvent - Handled event: {}", event.uuid(), event.toJson());
     }
@@ -107,11 +120,16 @@ public class ActivityServiceImpl implements ActivityService {
     	Activity activity=extractActivityFromEvent(event);
     	Organization organization = event.organization();
     	Integer totalAwards = event.totalAwards();
+    	UUID uuid = event.uuid();
     	
         try {
         	finalizeActivityTransaction(event.uuid(),totalAwards, activity, organization, event);
         } catch (Exception e) {
-        	log.error("UUID: {} - processActivityCreation - Exception occurred: {}",e);
+        	if (appProperties.enableTestBehavior()) {
+        		log.error("UUID: {} - processActivityCreation - Exception occurred: {}",uuid, e.getLocalizedMessage());
+        	}else {
+        		log.error("UUID: {} - processActivityCreation - Exception occurred:",uuid, e);
+        	}
             failureAtActivityCreation(event, activity, organization,totalAwards);
         }
     }
@@ -132,9 +150,9 @@ public class ActivityServiceImpl implements ActivityService {
     //retrieve Activity from retry event or create one
     private Activity extractActivityFromEvent(Event event) {
         if (EventType.AWARD_ORGANIZATION_SUCCESS_EVENT.equals(event.eventType())) {
-            return event.toActivity();
+            return event.toAckActivity();
         } else if (EventType.SAVE_ACTIVITY_AWARD_ORGANIZATION_RETRY_EVENT.equals(event.eventType())) {
-            return event.activity();
+            return event.activity().toBuilder().occurredAt(Instant.now()).build(); //update time
         } else {
             throw new UnsupportedOperationException("Unsupported event type: " + event.eventType());
         }

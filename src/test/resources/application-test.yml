@@ -9,9 +9,9 @@ spring:
     #To allow concurrency:
     #add DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=20000 to query string
     #this will manage the pessimistic lock and allows 20sec before timeout ou acquiring locking (update query consumes 16s)
-    url: jdbc:h2:mem:mydb
+    url: jdbc:h2:mem:mytestdb
     username: sa
-    password: password
+    password: test
     driverClassName: org.h2.Driver
   jpa:
     #spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
@@ -32,7 +32,7 @@ spring:
 app:
   batchSize: 1000
   messageProcessingIntervalMs: 7000
-  enableTestBehavior: true
+  enableTestBehavior: false
   retrySaveActivity:
     maxAttempts: 3
     backoffDelayMs: 3000

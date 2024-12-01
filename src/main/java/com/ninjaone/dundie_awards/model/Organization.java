@@ -16,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,10 +35,11 @@ import lombok.ToString;
 @Table(name = "organizations")
 public class Organization {
 	
-	//GARFIELD to load test, as GARFIELD is heavy 
 	public final static Organization GARFIELD = Organization.builder().name("Garfield").blocked(false).blockedBy(null).build();
-	//TOM to failure test, as he never is right
+	public final static Organization FRAJOLA = Organization.builder().name("Frajola").blocked(false).blockedBy(null).build();
+	public final static Organization SQUANCHY = Organization.builder().name("Squanchy").blocked(false).blockedBy(null).build();
 	public final static Organization TOM = Organization.builder().name("Tom").blocked(false).blockedBy(null).build();
+	public final static Organization HELLO_KITTY = Organization.builder().name("Hello Kitty").blocked(false).blockedBy(null).build();
 
 	@EqualsAndHashCode.Include
 	@Id
@@ -60,5 +62,8 @@ public class Organization {
 	
 	@Column(name = "blockedBy")
 	private String blockedBy;
+	
+	@Version
+    private int version;
 
 }

@@ -22,6 +22,7 @@ public class AwardsControllerImpl implements AwardsController {
     	UUID uuid = UUID.randomUUID();
         log.info("UUID: {} - POST /give-dundie-awards/{} - give Dundie Award to Organization with ID: {}", uuid, organizationId, organizationId);
 
+        awardService.preventiveBlockOrganizationId(uuid, organizationId);
         int totalUpdatedRecords = awardService.giveDundieAwards(uuid, organizationId);
         
     	log.info("UUID: {} - POST /give-dundie-awards/{} - Successfully updated employees: {}.", uuid, organizationId, totalUpdatedRecords);

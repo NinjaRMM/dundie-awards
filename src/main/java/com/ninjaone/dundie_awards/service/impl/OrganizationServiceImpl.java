@@ -102,22 +102,4 @@ public class OrganizationServiceImpl implements OrganizationService {
         log.debug("findOrganizationById - Found organization with ID: {}: {}", id, organization);
         return organization;
     }
-    
-    @Override
-    public void handleUnblockOrganizationSuccessEvent(Event event) {
-        log.info("UUID: {} - handleUnblockOrganizationSuccessEvent - Handle event: {}", event.uuid(), event.toJson());
-        log.info("UUID: {} - handleUnblockOrganizationSuccessEvent - Handled event: {}", event.uuid(), event.toJson());
-    }
-
-    @Override
-    public void handleUnblockOrganizationRetryEvent(Event event) {
-        log.info("UUID: {} - handleUnblockOrganizationRetryEvent - Handle event: {}", event.uuid(), event.toJson());
-        log.info("UUID: {} - handleUnblockOrganizationRetryEvent - Handled event: {}", event.uuid(), event.toJson());
-    }
-
-    @Override
-    public void handleUnblockOrganizationFailureEvent(Event event) {
-        log.info("UUID: {} - handleUnblockOrganizationFailureEvent - Handle event: {}", event.uuid(), event.toJson());
-        log.info("UUID: {} - handleUnblockOrganizationFailureEvent - Handled event: {}", event.uuid(), event.toJson());
-    }
 }

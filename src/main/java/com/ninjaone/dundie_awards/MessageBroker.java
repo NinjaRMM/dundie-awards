@@ -97,5 +97,44 @@ public class MessageBroker {
         );
     }
     
+    public void publishAwardOrganizationRollbackSuccessEvent(UUID uuid, Activity activity, Integer totalAwards, Organization organization) {
+        sendMessage(
+            Event.createAwardOrganizationRollbackSuccessEvent(
+                uuid,
+                Instant.now(),
+                totalAwards,
+                activity,
+                organization
+            )
+        );
+    }
+
+    public void publishAwardOrganizationRollbackRetryEvent(UUID uuid, Integer totalAwards, Integer attempt, Activity activity, Organization organization) {
+        sendMessage(
+            Event.createAwardOrganizationRollbackRetryEvent(
+                uuid,
+                Instant.now(),
+                totalAwards,
+                attempt,
+                activity,
+                organization
+            )
+        );
+    }
+
+    public void publishAwardOrganizationRollbackFailureEvent(UUID uuid, Integer totalAwards, Activity activity, Organization organization) {
+        sendMessage(
+            Event.createAwardOrganizationRollbackFailureEvent(
+                uuid,
+                Instant.now(),
+                totalAwards,
+                activity,
+                organization
+            )
+        );
+    }
+
+
+    
 }
 

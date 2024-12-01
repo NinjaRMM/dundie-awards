@@ -1,5 +1,6 @@
 package com.ninjaone.dundie_awards;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 
 import java.time.Instant;
@@ -12,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.ninjaone.dundie_awards.event.Event;
+import com.ninjaone.dundie_awards.model.Activity;
+import com.ninjaone.dundie_awards.model.Organization;
 import com.ninjaone.dundie_awards.service.ActivityService;
 import com.ninjaone.dundie_awards.service.AwardService;
 
@@ -26,9 +29,24 @@ class StreamProcessorTest {
     @InjectMocks
     private StreamProcessor streamProcessor;
 
+    private Organization mockOrganization;
+    private Activity mockActivity;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        mockOrganization = Organization.builder()
+                .id(1L)
+                .name("Test Organization")
+                .blocked(false)
+                .blockedBy(null)
+                .build();
+
+        mockActivity = Activity.builder()
+                .event("Test Event")
+                .occurredAt(Instant.now())
+                .build();
     }
 
     @Test
@@ -38,7 +56,7 @@ class StreamProcessorTest {
                 Instant.now(),
                 10,
                 10,
-                null
+                mockOrganization
         );
         streamProcessor.process(event);
         verify(activityService).handleAwardOrganizationSuccessEvent(event);
@@ -50,8 +68,8 @@ class StreamProcessorTest {
                 UUID.randomUUID(),
                 Instant.now(),
                 10,
-                null, 
-                null
+                mockActivity,
+                mockOrganization
         );
         streamProcessor.process(event);
         verify(awardService).handleSaveActivityAwardOrganizationSuccessEvent(event);
@@ -64,8 +82,8 @@ class StreamProcessorTest {
                 Instant.now(),
                 10,
                 1,
-                null,
-                null
+                mockActivity,
+                mockOrganization
         );
         streamProcessor.process(event);
         verify(activityService).handleSaveActivityAwardOrganizationRetryEvent(event);
@@ -77,8 +95,8 @@ class StreamProcessorTest {
                 UUID.randomUUID(),
                 Instant.now(),
                 10,
-                null,
-                null
+                mockActivity,
+                mockOrganization
         );
         streamProcessor.process(event);
         verify(awardService).handleSaveActivityAwardOrganizationFailureEvent(event);
@@ -90,7 +108,8 @@ class StreamProcessorTest {
                 UUID.randomUUID(),
                 Instant.now(),
                 10,
-                10
+                mockActivity,
+                mockOrganization
         );
         streamProcessor.process(event);
         verify(awardService).handleAwardOrganizationRollbackSuccessEvent(event);
@@ -101,7 +120,10 @@ class StreamProcessorTest {
         Event event = Event.createAwardOrganizationRollbackRetryEvent(
                 UUID.randomUUID(),
                 Instant.now(),
-                1
+                10,
+                1,
+                mockActivity,
+                mockOrganization
         );
         streamProcessor.process(event);
         verify(awardService).handleAwardOrganizationRollbackRetryEvent(event);
@@ -111,9 +133,29 @@ class StreamProcessorTest {
     void shouldProcessAwardOrganizationRollbackFailureEvent() {
         Event event = Event.createAwardOrganizationRollbackFailureEvent(
                 UUID.randomUUID(),
-                Instant.now()
+                Instant.now(),
+                10,
+                mockActivity,
+                mockOrganization
         );
         streamProcessor.process(event);
         verify(awardService).handleAwardOrganizationRollbackFailureEvent(event);
     }
+    
+    @Test
+    void shouldThrowExceptionForUnsupportedEventType() {
+        Event event = new Event(
+                UUID.randomUUID(),
+                Instant.now(),
+                null, 
+                1,
+                10,
+                1,
+                null,
+                null
+        );
+
+        assertThrows(UnsupportedOperationException.class, () -> streamProcessor.process(event));
+    }
+
 }

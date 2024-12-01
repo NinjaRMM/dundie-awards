@@ -4,13 +4,19 @@ import static com.ninjaone.dundie_awards.TestEntityFactory.createEmployee;
 import static com.ninjaone.dundie_awards.TestEntityFactory.createEmployeeDto;
 import static com.ninjaone.dundie_awards.TestEntityFactory.createEmployeeUpdateRequestDto;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -182,6 +188,17 @@ class EmployeeServiceTest {
     	    verify(employeeRepository).findById(1L);
     	    verify(employeeRepository).save(expectedUpdatedEmployee);
     	}
+    	
+    	@Test
+    	void shouldUpdateDundieAwardsSuccessfully() {
+    	    UUID uuid = UUID.randomUUID();
+    	    Long employeeId = 1L;
+    	    int dundieAwards = 5;
+    	    given(employeeRepository.updateDundieAwards(employeeId, dundieAwards)).willReturn(1);
+    	    employeeService.updateDundieAwards(uuid, employeeId, dundieAwards);
+    	    verify(employeeRepository).updateDundieAwards(employeeId, dundieAwards);
+    	}
+
 
     }
 
@@ -240,4 +257,117 @@ class EmployeeServiceTest {
             verify(employeeRepository).findConcatenatedEmployeeDataByOrganizationIdNative(organizationId);
         }
     }
+    
+    @Nested
+    class DundieAwardModificationTests {
+
+        @Test
+        void shouldAddDundieAwardToEmployees() {
+            UUID uuid = UUID.randomUUID();
+            Long organizationId = 1L;
+            int updatedRecords = 5;
+            given(employeeRepository.increaseAwardsToEmployeesNative(organizationId)).willReturn(updatedRecords);
+
+            int result = employeeService.addDundieAwardToEmployees(uuid, organizationId);
+
+            assertThat(result).isEqualTo(updatedRecords);
+            verify(employeeRepository).increaseAwardsToEmployeesNative(organizationId);
+        }
+
+        @Test
+        void shouldRemoveDundieAwardToEmployees() {
+            UUID uuid = UUID.randomUUID();
+            Long organizationId = 1L;
+            int affectedRows = 3;
+            given(employeeRepository.decreaseAwardsToEmployeesNative(organizationId)).willReturn(affectedRows);
+
+            int result = employeeService.removeDundieAwardToEmployees(uuid, organizationId);
+
+            assertThat(result).isEqualTo(affectedRows);
+            verify(employeeRepository).decreaseAwardsToEmployeesNative(organizationId);
+        }
+    }
+    
+    @Nested
+    class RollbackDundieAwardsTests {
+
+        @Test
+        void shouldRollbackDundieAwards() {
+            String tableName = "temp_123";
+            Set<SimpleEntry<Long, Integer>> parsedData = Set.of(
+                    new SimpleEntry<>(1L, 5),
+                    new SimpleEntry<>(2L, 10)
+            );
+
+            // Mock behavior for each operation
+            employeeService.rollbackDundieAwards(tableName, parsedData);
+
+            // Verify each method call
+            verify(employeeRepository).createTemporaryTable(tableName);
+            parsedData.forEach(entry -> 
+                verify(employeeRepository).insertIntoTemporaryTable(tableName, entry.getKey(), entry.getValue())
+            );
+            verify(employeeRepository).updateEmployeesFromTemporaryTable(tableName);
+            verify(employeeRepository).dropTemporaryTable(tableName);
+        }
+        
+        @Test
+        void shouldThrowExceptionWhenCreatingTemporaryTableFails() {
+            String tableName = "temp_123";
+            Set<SimpleEntry<Long, Integer>> parsedData = Set.of(
+                    new SimpleEntry<>(1L, 5),
+                    new SimpleEntry<>(2L, 10)
+            );
+
+            doThrow(new RuntimeException("Error creating table")).when(employeeRepository).createTemporaryTable(tableName);
+
+            assertThatThrownBy(() -> employeeService.rollbackDundieAwards(tableName, parsedData))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Error creating table");
+
+            verify(employeeRepository).createTemporaryTable(tableName);
+            verify(employeeRepository, never()).insertIntoTemporaryTable(any(), any(), any());
+            verify(employeeRepository, never()).updateEmployeesFromTemporaryTable(any());
+            verify(employeeRepository, never()).dropTemporaryTable(any());
+        }
+    }
+    
+    @Nested
+    class FetchEmployeeComparisonDataTests {
+
+        @Test
+        void shouldFetchEmployeeComparisonData() {
+            UUID uuid = UUID.randomUUID();
+            Long organizationId = 1L;
+            String comparisonData = "1,10|2,15|3,20";
+
+            given(employeeRepository.findConcatenatedEmployeeDataByOrganizationIdNative(organizationId))
+                    .willReturn(comparisonData);
+
+            String result = employeeService.fetchEmployeeComparisonData(uuid, organizationId);
+
+            assertThat(result).isEqualTo(comparisonData);
+            verify(employeeRepository, org.mockito.Mockito.times(1))
+                    .findConcatenatedEmployeeDataByOrganizationIdNative(organizationId);
+        }
+
+        @Test
+        void shouldReturnEmptyStringIfNoComparisonDataFound() {
+            UUID uuid = UUID.randomUUID();
+            Long organizationId = 999L;
+
+            given(employeeRepository.findConcatenatedEmployeeDataByOrganizationIdNative(organizationId))
+                    .willReturn("");
+
+            String result = employeeService.fetchEmployeeComparisonData(uuid, organizationId);
+
+            assertThat(result).isEmpty();
+            verify(employeeRepository, org.mockito.Mockito.times(1))
+                    .findConcatenatedEmployeeDataByOrganizationIdNative(organizationId);
+        }
+    }
+
+
+
+
 }

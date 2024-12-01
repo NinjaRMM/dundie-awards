@@ -20,6 +20,9 @@ public class StreamProcessor {
 
     @EventListener
     public void process(Event event) {
+    	if (event.eventType() == null) {
+            throw new UnsupportedOperationException("Unsupported or null event type: " + event);
+        }
     	log.info("UUID: {} - process - StreamProcessing processing event: {}", event.uuid(), event.toJson());
         switch (event.eventType()) {
         	//If given award to organization where success then try to create Activity

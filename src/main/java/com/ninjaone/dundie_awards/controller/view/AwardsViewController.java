@@ -1,5 +1,7 @@
 package com.ninjaone.dundie_awards.controller.view;
 
+import java.text.DecimalFormat;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,10 +17,12 @@ import lombok.RequiredArgsConstructor;
 public class AwardsViewController {
     
 	private final AwardsCache awardsCache;
+	private DecimalFormat decimalFormat = new DecimalFormat("#,###");
 
     @GetMapping("/view")
     public String getActivities(Model model) {
-        model.addAttribute("totalDundieAwards", awardsCache.getTotalAwards());
+        String formattedAwards = decimalFormat.format(awardsCache.getTotalAwards());
+        model.addAttribute("totalDundieAwards", formattedAwards);
         return "awards :: content";
     }
 

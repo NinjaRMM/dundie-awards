@@ -17,7 +17,7 @@ class AppPropertiesTest {
     private AppProperties appProperties;
 
     @Mock(answer = Answers.RETURNS_SMART_NULLS)
-    private AppProperties.RetrySaveActivityConfig retrySaveActivityConfig;
+    private AppProperties.RetrySaveActivity retrySaveActivityConfig;
 
     @BeforeEach
     void setup() {

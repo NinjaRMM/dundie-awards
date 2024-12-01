@@ -6,6 +6,7 @@ import com.ninjaone.dundie_awards.event.Event;
 
 public interface AwardService {
 
+	void preventiveBlockOrganizationId(UUID uuid, long organizationId);
     int giveDundieAwards(UUID requestId, long organizationId);
     public void handleSaveActivityAwardOrganizationSuccessEvent(Event event);
     public void handleSaveActivityAwardOrganizationFailureEvent(Event event);
