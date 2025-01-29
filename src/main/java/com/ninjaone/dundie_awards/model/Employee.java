@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "employees")
+@lombok.Data
+@lombok.Builder(builderClassName = "Builder")
 public class Employee {
 
     @Id
@@ -21,17 +23,6 @@ public class Employee {
 
     @ManyToOne
     private Organization organization;
-
-    public Employee() {
-
-    }
-
-    public Employee(String firstName, String lastName, Organization organization) {
-        super();
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.organization = organization;
-    }
 
     public long getId() {
         return id;
