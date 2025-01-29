@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "employees")
 @lombok.Data
+@lombok.AllArgsConstructor
+@lombok.NoArgsConstructor
 @lombok.Builder(builderClassName = "Builder")
 public class Employee {
 

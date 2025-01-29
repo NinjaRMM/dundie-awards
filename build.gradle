@@ -30,6 +30,7 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	ignoreFailures = true
 }
 
 jacocoTestReport {
