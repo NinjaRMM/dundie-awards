@@ -8,8 +8,12 @@ Below are individual sections categorizing the recommendations I have for this p
 
 ## CI/CD
  1. Added Github Actions to execute Gradle build and test
- 2. Added GA to perform Test Coverage analysis
- 
+ 2. Added Gradle jacoco plugin and Github Actions to perform Test Coverage analysis
+
+
+## Application
+ 1. References springdoc in config, but doesn't include it in gradle
+ 2. No security
 
 ## Larger Initiatives
  1. Refactor with clean-architecture design
