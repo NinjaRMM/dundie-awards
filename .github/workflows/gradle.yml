@@ -38,25 +38,24 @@ jobs:
     - name: Gradle Build
       run: ./gradlew build
 
-    - name: Gradle Test Coverage
+    - name: Gradle Jacoco Test Report
       run: |
         chmod +x gradlew
-        ./gradlew testCoverage
+        ./gradlew jacocoTestReport
 
     - name: Test Summary
       uses: test-summary/action@v1
       if: always()
       with:
         paths: |
-          **/build/test-results/test/*.xml
+          **/build/test-results/**/TEST-*.xml
   
     - name: Test Coverage PR Report
       id: jacoco
       uses: madrapps/jacoco-report@v1.7.1
       with:
         paths: |
-          ${{ github.workspace }}/**/build/reports/jacoco/prodNormalDebugCoverage/prodNormalDebugCoverage.xml,
-          ${{ github.workspace }}/**/build/reports/jacoco/**/debugCoverage.xml
+          ${{ github.workspace }}/**/build/reports/jacoco/**/*.xml
         token: ${{ secrets.GITHUB_TOKEN }}
         min-coverage-overall: 40
         min-coverage-changed-files: 60
