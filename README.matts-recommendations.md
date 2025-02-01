@@ -17,6 +17,9 @@ Below are individual sections categorizing the recommendations I have for this p
 2. No security on REST endpoints
 3. No real tests
     - Added `EmployeeControllerTest`
+    - Added `EmployeeTest`
+    - Added `OrganizationTest`
+    - Reported test coverage is now `>80%`
 4. Added lombok for cleaner class instance usage
     - Removed boilerplate getter/setter/constructor code
 
