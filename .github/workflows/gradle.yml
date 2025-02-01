@@ -115,7 +115,7 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: .github/aws/ecs/task-defs/dundie.json
+          task-definition-arn: arn:aws:ecs:us-east-1:339712756342:task-definition/dundie-app:1
           container-name: dundie-app
           image: ${{ steps.build-image.outputs.image }}
 
