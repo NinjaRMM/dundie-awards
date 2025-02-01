@@ -36,6 +36,12 @@ jobs:
     - name: Gradle Build
       run: ./gradlew build
 
+    - name: Cache Built JARs
+      uses: actions/cache/save@v4
+      with:
+        path: ./build/libs/*.jar
+        key: 'built-jars'
+
     - name: Gradle Jacoco Test Report
       run: ./gradlew jacocoTestReport
       if: always()
@@ -72,6 +78,14 @@ jobs:
         ||                           'dev'
       }}
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore Built JARs from Cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ./build/libs/*.jar
+          key: 'built-jars'
+          
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
