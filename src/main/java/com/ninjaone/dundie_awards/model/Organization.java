@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "organizations")
 @lombok.Data
+@lombok.EqualsAndHashCode(of = {"id", "name"})
 @lombok.AllArgsConstructor
 @lombok.NoArgsConstructor
 @lombok.Builder(builderClassName = "Builder")

@@ -5,9 +5,10 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "employees")
 @lombok.Data
+@lombok.EqualsAndHashCode(of = {"id", "firstName", "lastName"})
 @lombok.AllArgsConstructor
 @lombok.NoArgsConstructor
-@lombok.Builder(builderClassName = "Builder", toBuilder = true)
+@lombok.Builder(builderClassName = "Builder")
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
