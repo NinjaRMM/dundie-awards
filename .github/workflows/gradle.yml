@@ -85,7 +85,7 @@ jobs:
         with:
           path: ./build/libs/*.jar
           key: 'built-jars'
-          
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -115,8 +115,8 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ vars.ECS_TASK_DEFINITION }}
-          container-name: ${{ vars.CONTAINER_NAME }}
+          task-definition: .github/aws/ecs/task-defs/dundie.json
+          container-name: dundie-app
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Deploy Amazon ECS task definition

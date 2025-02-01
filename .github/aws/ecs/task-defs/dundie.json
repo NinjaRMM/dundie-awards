@@ -1,0 +1,22 @@
+{
+    "family": "dundie-app", 
+    "networkMode": "awsvpc", 
+    "containerDefinitions": [
+        {
+            "name": "dundie-app", 
+            "portMappings": [
+                {
+                    "containerPort": 80, 
+                    "hostPort": 8080, 
+                    "protocol": "tcp"
+                }
+            ], 
+            "essential": true
+        }
+    ], 
+    "requiresCompatibilities": [
+        "FARGATE"
+    ], 
+    "cpu": "256", 
+    "memory": "512"
+}
