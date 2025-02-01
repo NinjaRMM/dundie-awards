@@ -20,6 +20,7 @@ import com.ninjaone.dundie_awards.AwardsCache;
 import com.ninjaone.dundie_awards.MessageBroker;
 import com.ninjaone.dundie_awards.controller.EmployeeController;
 import com.ninjaone.dundie_awards.model.Employee;
+import com.ninjaone.dundie_awards.model.Organization;
 import com.ninjaone.dundie_awards.repository.ActivityRepository;
 import com.ninjaone.dundie_awards.repository.EmployeeRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,14 +59,14 @@ public class EmployeeControllerTest {
     private Employee employee2;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
         employee1 = Employee.builder().id(1L).firstName("John").lastName("Doe").build();
         employee2 = Employee.builder().id(2L).firstName("Jane").lastName("Doe").build();
     }
 
     @Test
-    public void get_on_root_resource_should_produce_json_listing_of_all_employees() throws Exception {
+    void get_on_root_resource_should_produce_json_listing_of_all_employees() throws Exception {
         when(employeeRepository.findAll()).thenReturn(Arrays.asList(employee1, employee2));
 
         mockMvc.perform(get("/employees"))
@@ -75,7 +76,7 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    public void post_on_root_resource_should_save_a_new_employee() throws Exception {
+    void post_on_root_resource_should_save_a_new_employee() throws Exception {
         when(employeeRepository.save(any(Employee.class))).thenReturn(employee1);
 
         mockMvc.perform(post("/employees")
@@ -86,7 +87,7 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    public void get_for_a_single_employee_url_when_employee_is_present_should_produce_single_employee_json() throws Exception {
+    void get_for_a_single_employee_url_when_employee_is_present_should_produce_single_employee_json() throws Exception {
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee1));
 
         mockMvc.perform(get("/employees/1"))
@@ -95,7 +96,7 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    public void get_for_a_single_employee_url_when_employee_is_not_reprent_should_produce_404() throws Exception {
+    void get_for_a_single_employee_url_when_employee_is_not_reprent_should_produce_404() throws Exception {
         when(employeeRepository.findById(1L)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/employees/1"))
@@ -103,19 +104,41 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    public void put_to_single_employee_url_should_update_the_employee_in_repository_and_produce_new_json() throws Exception {
+    void put_to_single_employee_url_should_update_the_employee_in_repository_and_produce_new_json() throws Exception {
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee1));
         when(employeeRepository.save(any(Employee.class))).thenReturn(employee1);
 
+        Employee updatedEmployee = Employee.builder().firstName("John").lastName("Dundie").build();
+
         mockMvc.perform(put("/employees/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(employee1)))
+                .content(new ObjectMapper().writeValueAsString(updatedEmployee)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value("John"));
+                .andExpect(jsonPath("$.firstName").value("John"))
+                .andExpect(jsonPath("$.lastName").value("Dundie"));
     }
 
     @Test
-    public void put_to_single_employee_url_when_not_present_produces_a_404_response() throws Exception {
+    void put_to_single_employee_url_should_update_the_employee_organization_and_dundieawards_as_appropriate()
+            throws Exception {
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee1));
+        when(employeeRepository.save(any(Employee.class))).thenReturn(employee1);
+
+        Employee updatedEmployee = Employee.builder().firstName("John").lastName("Dundie")
+                .organization(Organization.builder().name("neworg").build()).dundieAwards(800).build();
+
+        mockMvc.perform(put("/employees/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(updatedEmployee)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName").value("John"))
+                .andExpect(jsonPath("$.lastName").value("Dundie"))
+                .andExpect(jsonPath("$.organization.name").value("neworg"))
+                .andExpect(jsonPath("$.dundieAwards").value(800));
+    }
+
+    @Test
+    void put_to_single_employee_url_when_not_present_produces_a_404_response() throws Exception {
         when(employeeRepository.findById(1L)).thenReturn(Optional.empty());
 
         mockMvc.perform(put("/employees/1")
@@ -125,7 +148,8 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    public void delete_to_single_employee_url_should_delete_from_repository_and_produces_a_200_status_response() throws Exception {
+    void delete_to_single_employee_url_should_delete_from_repository_and_produces_a_200_status_response()
+            throws Exception {
         when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee1));
         doNothing().when(employeeRepository).delete(employee1);
 
@@ -137,7 +161,7 @@ public class EmployeeControllerTest {
     }
 
     @Test
-    public void delete_to_single_employee_url_when_not_present_produces_a_404_response() throws Exception {
+    void delete_to_single_employee_url_when_not_present_produces_a_404_response() throws Exception {
         when(employeeRepository.findById(1L)).thenReturn(Optional.empty());
 
         mockMvc.perform(delete("/employees/1"))

@@ -72,17 +72,13 @@ public class EmployeeController {
     @PutMapping("/employees/{id}")
     @ResponseBody
     public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employeeDetails) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
-        if (!optionalEmployee.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        Employee employee = optionalEmployee.get();
-        employee.setFirstName(employeeDetails.getFirstName());
-        employee.setLastName(employeeDetails.getLastName());
-
-        Employee updatedEmployee = employeeRepository.save(employee);
-        return ResponseEntity.ok(updatedEmployee);
+        return employeeRepository.findById(id).map(existing -> {
+            existing.setFirstName(employeeDetails.getFirstName());
+            existing.setLastName(employeeDetails.getLastName());
+            existing.setOrganization(employeeDetails.getOrganization());
+            existing.setDundieAwards(employeeDetails.getDundieAwards());
+            return ResponseEntity.ok(employeeRepository.save(existing));
+        }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     // delete employee rest api
