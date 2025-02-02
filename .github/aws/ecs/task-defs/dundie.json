@@ -1,13 +1,13 @@
 {
     "family": "dundie-app", 
-    "networkMode": "awsvpc", 
+    "networkMode": "awsvpc",
     "containerDefinitions": [
         {
-            "name": "dundie-app", 
+            "name": "dundie-app",
             "portMappings": [
                 {
-                    "containerPort": 8080, 
-                    "hostPort": 8080, 
+                    "containerPort": 3000, 
+                    "hostPort": 3000, 
                     "protocol": "tcp"
                 }
             ], 
