@@ -10,7 +10,7 @@ Below are individual sections categorizing the recommendations I have for this p
 ## CI/CD
 1. Added Github Actions to execute Gradle build and test
 2. Added Gradle jacoco plugin and Github Actions to perform Test Coverage analysis
-3. Added CD in the form of deployment into AWS container hosting via Github Actions
+3. Added Github Actions to construct Docker, publish and deploy into AWS ECS
 
 ## General Application
 1. References springdoc in config, but doesn't include it in gradle
