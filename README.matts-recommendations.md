@@ -12,7 +12,7 @@ Below are individual sections categorizing the recommendations I have for this p
 2. Added Gradle jacoco plugin and Github Actions to perform Test Coverage analysis
 3. Added Github Actions to construct Docker, publish and deploy into AWS ECS
 
-## General Application
+## General Application/Code
 1. References springdoc in config, but doesn't include it in gradle
     - Added springdoc to gradle build, swagger-ui now present
 3. No real tests
@@ -22,8 +22,13 @@ Below are individual sections categorizing the recommendations I have for this p
     - Reported test coverage is now `>80%`
 4. Added lombok for cleaner class instance usage
     - Removed boilerplate getter/setter/constructor code
+5. No javadoc
+    - Recommend writing javadoc along with publishing javadoc-jar as a general best-practise
 
-## REST Functionality
+## REST Layer
+
+### OpenAPI Spec
+1. Make use of springdoc to annotate and document the expected HTTP payloads and responses
 
 ### EmployeeController
 1. No way to update `Employee`'s `organziation` on an existing record
@@ -41,8 +46,7 @@ Below are individual sections categorizing the recommendations I have for this p
 
 ### No controller for `Organization`s
 
-
-### No security
+### Security
 - No authorization/authentication exist on the API, which may or may not be acceptable depending on the application
 
 ### Error responses
