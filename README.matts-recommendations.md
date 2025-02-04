@@ -15,7 +15,6 @@ Below are individual sections categorizing the recommendations I have for this p
 ## General Application
 1. References springdoc in config, but doesn't include it in gradle
     - Added springdoc to gradle build, swagger-ui now present
-2. No security on REST endpoints
 3. No real tests
     - Added `EmployeeControllerTest`
     - Added `EmployeeTest`
@@ -42,8 +41,14 @@ Below are individual sections categorizing the recommendations I have for this p
 
 ### No controller for `Organization`s
 
+
+### No security
+- No authorization/authentication exist on the API, which may or may not be acceptable depending on the application
+
 ### Error responses
-1. `POST`ing a new Employee with an assigned Organization that does not exist produces a `500` response
+
+- The REST controllers largely rely on built-in Spring error handling to create a corresponding HTTP response
+    - Example: `POST`ing a new Employee with an assigned `Organization` `id` that does not exist produces a `500` response
     - Since the error is really the result of the caller's submission payload, something in the 4xx status-code family would likely be a better response
 
 ## Larger Initiatives
