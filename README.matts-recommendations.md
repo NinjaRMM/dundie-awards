@@ -42,6 +42,10 @@ Below are individual sections categorizing the recommendations I have for this p
 
 ### No controller for `Organization`s
 
+### Error responses
+1. `POST`ing a new Employee with an assigned Organization that does not exist produces a `500` response
+    - Since the error is really the result of the caller's submission payload, something in the 4xx status-code family would likely be a better response
+
 ## Larger Initiatives
 ### Refactor with clean-architecture design
 - Improves Domain-Driven design paradigms
