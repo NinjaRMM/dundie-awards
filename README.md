@@ -12,7 +12,7 @@ In preparation for the upcoming call with NinjaOne, `clone` this repo and run it
 
 ![success](success.png)
 
-Become familiar with the application and it's characteristics. Use your favorite HTTP Client (like [Postman](https://www.postman.com/)) to exercise the endpoints and step through the code to help you get to know the application. 
+Become familiar with the application and its characteristics. Use your favorite HTTP Client (like [Postman](https://www.postman.com/)) to exercise the endpoints and step through the code to help you get to know the application. 
 
 In the call, we will introduce new code to the application, and you will comment on issues with the endpoint. Please be ready to share your screen in the call with us with the application ready to run. 
 
