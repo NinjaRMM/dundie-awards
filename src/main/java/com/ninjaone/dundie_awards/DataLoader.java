@@ -1,13 +1,15 @@
 package com.ninjaone.dundie_awards;
 
+import java.util.Objects;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
 import com.ninjaone.dundie_awards.model.Employee;
 import com.ninjaone.dundie_awards.model.Organization;
 import com.ninjaone.dundie_awards.repository.EmployeeRepository;
 import com.ninjaone.dundie_awards.repository.OrganizationRepository;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 @Component
 public class DataLoader implements CommandLineRunner {
@@ -15,6 +17,9 @@ public class DataLoader implements CommandLineRunner {
     private final EmployeeRepository employeeRepository;
     private final OrganizationRepository organizationRepository;
     private final AwardsCache awardsCache;
+
+    @Value("${database.reload_data}")
+    private boolean reloadData;
 
     public DataLoader(EmployeeRepository employeeRepository, OrganizationRepository organizationRepository, AwardsCache awardsCache) {
         this.awardsCache = awardsCache;
@@ -25,8 +30,11 @@ public class DataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) {
         // uncomment to reseed data
-        // employeeRepository.deleteAll();
-        // organizationRepository.deleteAll();
+        if (reloadData) {
+            employeeRepository.deleteAll();
+            organizationRepository.deleteAll();
+
+        }
 
         if (employeeRepository.count() == 0) {
             Organization organizationPikashu = new Organization("Pikashu");
