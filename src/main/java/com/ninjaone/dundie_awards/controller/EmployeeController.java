@@ -1,15 +1,10 @@
 package com.ninjaone.dundie_awards.controller;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.ninjaone.dundie_awards.AwardsCache;
-import com.ninjaone.dundie_awards.MessageBroker;
-import com.ninjaone.dundie_awards.model.Activity;
 import com.ninjaone.dundie_awards.model.Employee;
 import com.ninjaone.dundie_awards.repository.ActivityRepository;
 import com.ninjaone.dundie_awards.repository.EmployeeRepository;
@@ -35,12 +30,6 @@ public class EmployeeController {
 
     @Autowired
     private ActivityRepository activityRepository;
-
-    @Autowired
-    private MessageBroker messageBroker;
-
-    @Autowired
-    private AwardsCache awardsCache;
 
     // get all employees
     @GetMapping("/employees")

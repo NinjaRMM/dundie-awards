@@ -7,17 +7,13 @@ import com.ninjaone.dundie_awards.repository.OrganizationRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
-
 @Component
 public class DataLoader implements CommandLineRunner {
 
     private final EmployeeRepository employeeRepository;
     private final OrganizationRepository organizationRepository;
-    private final AwardsCache awardsCache;
 
-    public DataLoader(EmployeeRepository employeeRepository, OrganizationRepository organizationRepository, AwardsCache awardsCache) {
-        this.awardsCache = awardsCache;
+    public DataLoader(EmployeeRepository employeeRepository, OrganizationRepository organizationRepository) {
         this.employeeRepository = employeeRepository;
         this.organizationRepository = organizationRepository;
     }
@@ -44,10 +40,5 @@ public class DataLoader implements CommandLineRunner {
             employeeRepository.save(new Employee("Jim", "Halpert", organizationSquanchy));
             employeeRepository.save(new Employee("Pam", "Beesley", organizationSquanchy));
         }
-
-        int totalAwards = employeeRepository.findAll().stream()
-                .mapToInt(employee -> Objects.requireNonNullElse(employee.getDundieAwards(), 0))
-                .sum();
-        this.awardsCache.setTotalAwards(totalAwards);
     }
 }

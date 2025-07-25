@@ -14,10 +14,6 @@
     </style>
 </head>
 <body>
-<div class="mt-5">
-    <p>Total Dundie Awards: <span th:text="${totalDundieAwards}"></span></p>
-</div>
-
 <div th:switch="${employees}" class="mt-5">
     <p th:case="null" class="alert alert-warning">No employees</p>
     <div th:case="*">
@@ -64,26 +60,7 @@
         </table>
     </div>
 </div>
-<div th:switch="${queueMessages}" class="mt-5">
-    <p th:case="null" class="alert alert-warning">No messages</p>
-    <div th:case="*">
-        <h2 class="mb-3">Queue Messages</h2>
-        <table class="table table-striped">
-            <thead class="thead-dark">
-            <tr>
-                <th>Occurred At</th>
-                <th>Event</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="activity : ${queueMessages}">
-                <th th:text="${activity.occuredAt}"></th>
-                <th th:text="${activity.event}"></th>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+
 <!-- Include Bootstrap JS and Popper.js -->
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
